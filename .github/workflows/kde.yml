@@ -2,9 +2,9 @@ name: KDE port
 
 on:
   push:
-    paths: ["kde/**", "Makefile", ".github/workflows/kde.yml"]
+    paths: ["kde/**", "VERSION", "scripts/**", "Makefile", ".github/workflows/kde.yml"]
   pull_request:
-    paths: ["kde/**", "Makefile", ".github/workflows/kde.yml"]
+    paths: ["kde/**", "VERSION", "scripts/**", "Makefile", ".github/workflows/kde.yml"]
 
 permissions:
   contents: read

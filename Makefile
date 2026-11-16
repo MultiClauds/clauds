@@ -91,23 +91,27 @@ clean: ## Delete the build folder
 
 # ---- Flatpak (see kde/packaging/flatpak) ----
 
-FLATPAK_ID       := io.github.atterdag.clauds
+FLATPAK_ID       := io.github.multiclauds.clauds-kde
 FLATPAK_MANIFEST := kde/packaging/flatpak/$(FLATPAK_ID).yml
 FLATPAK_BUILD    ?= build-flatpak
 FLATPAK_REPO     ?= $(FLATPAK_BUILD)/repo
-FLATPAK_BUNDLE   ?= $(FLATPAK_BUILD)/clauds.flatpak
+FLATPAK_BUNDLE   ?= $(FLATPAK_BUILD)/$(FLATPAK_ID).flatpak
 FLATPAK_BRANCH   ?= 6.10
 FLATPAK_BUILDER  ?= flatpak-builder
 
-.PHONY: flatpak-deps
-flatpak-deps: ## Install flatpak-builder, the KDE runtime, SDK and Qt WebEngine base (sudo apt, flathub)
-	$(SUDO) apt install flatpak flatpak-builder
+.PHONY: flatpak-runtime
+flatpak-runtime: ## Install only the KDE runtime, SDK and Qt WebEngine base (no sudo, for CI)
 	flatpak install --user --noninteractive flathub \
 		org.kde.Platform//$(FLATPAK_BRANCH) org.kde.Sdk//$(FLATPAK_BRANCH) \
 		io.qt.qtwebengine.BaseApp//$(FLATPAK_BRANCH)
 
+.PHONY: flatpak-deps
+flatpak-deps: ## Install flatpak-builder, the KDE runtime, SDK and Qt WebEngine base (sudo apt, flathub)
+	$(SUDO) apt install flatpak flatpak-builder
+	$(MAKE) flatpak-runtime
+
 .PHONY: flatpak
-flatpak: ## Build the Flatpak and write build-flatpak/clauds.flatpak
+flatpak: ## Build the Flatpak and write build-flatpak/io.github.multiclauds.clauds-kde.flatpak
 	$(FLATPAK_BUILDER) --user --force-clean --state-dir=$(FLATPAK_BUILD)/state \
 		--repo=$(FLATPAK_REPO) $(FLATPAK_BUILD)/app $(FLATPAK_MANIFEST)
 	flatpak build-bundle $(FLATPAK_REPO) $(FLATPAK_BUNDLE) $(FLATPAK_ID)

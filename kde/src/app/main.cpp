@@ -74,6 +74,12 @@ int main(int argc, char **argv)
     // Every file and folder that this app makes is for this user only.
     ::umask(077);
 
+    // Flatpak sets XDG_DATA_HOME to ~/.var/app/<id>/data whatever the manifest says. This app
+    // works on the real data folder (~/.local/share/clauds) and on the real Trash, which the
+    // manifest opens. This has to be set before Qt reads the folder.
+    if (ClaudeProcess::inFlatpak() && !qEnvironmentVariableIsSet("CLAUDS_DATA_DIR"))
+        qputenv("XDG_DATA_HOME", (QDir::homePath() + QStringLiteral("/.local/share")).toLocal8Bit());
+
     {
         QStringList args;
         for (int i = 0; i < argc; ++i)
@@ -90,7 +96,7 @@ int main(int argc, char **argv)
     app.setOrganizationName(QStringLiteral("clauds"));
     app.setApplicationDisplayName(QStringLiteral("Clauds"));
     app.setApplicationVersion(QStringLiteral(CLAUDS_VERSION));
-    app.setDesktopFileName(QStringLiteral("io.github.atterdag.clauds"));
+    app.setDesktopFileName(QStringLiteral("io.github.multiclauds.clauds-kde"));
     app.setWindowIcon(QIcon::fromTheme(QStringLiteral("clauds"), QIcon(QStringLiteral(":/icons/clauds.svg"))));
     app.setQuitOnLastWindowClosed(false);
 
@@ -98,8 +104,8 @@ int main(int argc, char **argv)
     KAboutData about(QStringLiteral("clauds"), QStringLiteral("Clauds"), QStringLiteral(CLAUDS_VERSION),
                      QStringLiteral("Switches the Claude desktop app between accounts"), KAboutLicense::MIT,
                      QStringLiteral("© 2026 Razvan Tanase (Clauds), KDE port contributors"));
-    about.setHomepage(QStringLiteral("https://github.com/atterdag/clauds"));
-    about.setDesktopFileName(QStringLiteral("io.github.atterdag.clauds"));
+    about.setHomepage(QStringLiteral("https://github.com/MultiClauds/clauds-kde"));
+    about.setDesktopFileName(QStringLiteral("io.github.multiclauds.clauds-kde"));
     KAboutData::setApplicationData(about);
 #endif
 

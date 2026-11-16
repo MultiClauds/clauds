@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 
+#include <QHash>
 #include <QList>
 #include <QString>
 #include <QStringList>
+
+#include <functional>
 
 namespace clauds {
 
@@ -39,6 +42,16 @@ public:
 
     ClaudeProcess(QString launcher, QStringList installDirs, QString procRoot = QStringLiteral("/proc"));
 
+    /// True when Clauds runs in a Flatpak sandbox. Then Claude Desktop, which is a host program
+    /// (for example the .deb package), is out of reach: the sandbox sees its own processes and
+    /// its own /usr. Finding, quitting and starting it goes through "flatpak-spawn --host".
+    static bool inFlatpak();
+    bool usesHost() const { return m_host; }
+
+    /// The user's real config folder. Flatpak points XDG_CONFIG_HOME at ~/.var/app/<id>/config
+    /// even when the manifest unsets it, but Claude Desktop keeps its data in the real ~/.config.
+    static QString realConfigDir();
+
     QString launcher() const { return m_launcher; }
     QStringList installDirs() const { return m_installDirs; }
     bool isInstalled() const { return !m_launcher.isEmpty(); }
@@ -71,6 +84,15 @@ private:
     QString m_launcher;
     QStringList m_installDirs;
     QString m_procRoot;
+    bool m_host = false;
+
+    QList<Proc> hostScan(const std::function<bool(const QString &, const QStringList &)> &accept) const;
+    struct HostCache {
+        qint64 at = 0;
+        QList<Proc> procs;
+        QHash<qint64, QStringList> args;
+    };
+    mutable HostCache m_cache;
 };
 
 } // namespace clauds

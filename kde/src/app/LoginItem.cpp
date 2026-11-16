@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 #include "LoginItem.h"
 
+#include "ClaudeProcess.h"
+
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
@@ -11,8 +13,8 @@ namespace clauds::LoginItem {
 
 QString path()
 {
-    return QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation)
-        + QStringLiteral("/autostart/io.github.atterdag.clauds.desktop");
+    return ClaudeProcess::realConfigDir()
+        + QStringLiteral("/autostart/io.github.multiclauds.clauds-kde.desktop");
 }
 
 bool isOn() { return QFile::exists(path()); }

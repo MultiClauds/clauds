@@ -13,7 +13,7 @@ Only the newest version on the `main` branch gets security fixes, until there is
 
 Use GitHub private vulnerability reporting:
 
-1. Go to <https://github.com/atterdag/clauds/security/advisories/new>.
+1. Go to <https://github.com/MultiClauds/clauds-kde/security/advisories/new>.
 2. Describe the problem, the steps to reproduce it, and the effect.
 
 You can expect a first answer in 7 days. When the fix is released, the report is published with
@@ -46,8 +46,9 @@ Do not attach these files to a report or an issue. They can identify you or your
 
 ## About the packages
 
-There is no release download yet. You build the `.deb` or the Flatpak from the source code, with
-`make install` or `make flatpak-install`. The build uses the Qt and KDE Frameworks packages of
+Every merge to `main` makes a GitHub release with a Flatpak (experimental). The `.deb` has no
+download: you build it from the source code, with `make install`. You can also build the Flatpak
+with `make flatpak-install`. The build uses the Qt and KDE Frameworks packages of
 your distribution.
 
 ## Scope

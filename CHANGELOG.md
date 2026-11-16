@@ -9,8 +9,27 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 The KDE Plasma port, in [`kde/`](kde/). Its version is 0.1.0 and it has no release yet.
 
+### Changed
+
+- The Flatpak app ID is now `io.github.multiclauds.clauds-kde` (it was `io.github.atterdag.clauds`).
+  The desktop file, the Start at Login entry and the bundle name use it. `make flatpak` writes
+  `build-flatpak/io.github.multiclauds.clauds-kde.flatpak`.
+
+### Fixed
+
+- Flatpak: the app now works on the real `~/.local/share/clauds`, `~/.config/Claude` and Trash.
+  Flatpak had pointed `XDG_DATA_HOME` and `XDG_CONFIG_HOME` into `~/.var/app/<id>/`.
+- Flatpak: "Show Saved Accounts" opens the file manager at once through the host. Before, Qt waited
+  about 25 s for the portal.
+
 ### Added
 
+- Semantic Versioning with automatic releases: every merge to `main` gets the next version from
+  the commit titles, a tag `v<version>` and a GitHub release with the Flatpak attached. The version
+  is in the file `VERSION`. See `CONTRIBUTING.md`.
+- The Flatpak now finds, quits and starts Claude Desktop on the host (for example the `.deb`
+  package) through `flatpak-spawn --host`. Before, it only saw its own sandbox. The scan of the
+  host uses one `find` call and a 1 s cache, so the panel stays fast.
 - KDE Plasma port of Clauds, written in C++ with Qt 6 and KDE Frameworks 6: a StatusNotifierItem
   tray icon, a Qt Quick panel with one card for each Claude account, and the colors of the user's
   color scheme.
@@ -51,7 +70,7 @@ The KDE Plasma port, in [`kde/`](kde/). Its version is 0.1.0 and it has no relea
 ### Not in the KDE port
 
 - Self-update (Sparkle). Install a new package instead.
-- A release download. Build the `.deb` or the Flatpak from the source.
+- A `.deb` download. Releases carry only the Flatpak (experimental). Build the `.deb` from the source.
 
 ## macOS app (upstream)
 
@@ -82,5 +101,5 @@ First release with the name Clauds.
 - Data from the first app name ("Claude Switcher") moves to the new folder at the first start
   while Claude is closed.
 
-[Unreleased]: https://github.com/atterdag/clauds/commits/main
+[Unreleased]: https://github.com/MultiClauds/clauds-kde/commits/main
 [1.0.0]: https://github.com/codeFi/clauds/releases/tag/v1.0.0

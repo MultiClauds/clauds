@@ -14,7 +14,7 @@ contributors. It describes the KDE Plasma port. Paths follow the XDG folders of 
 | `~/.local/share/clauds/SharedSessions/owners.json` | Which account made each Code session. `owners.json.bak` is the last good copy. |
 | `~/.local/share/clauds/SharedSessions/_conflicts` | Older versions of files that lost a "newer wins" decision. Nothing is deleted. |
 | `~/.local/share/clauds/QtWebEngine/account-<id>` | The claude.ai login of each account, for live usage and chat windows. |
-| `~/.config/autostart/io.github.atterdag.clauds.desktop` | The Start at Login entry, when it is on. |
+| `~/.config/autostart/io.github.multiclauds.clauds-kde.desktop` | The Start at Login entry, when it is on. |
 | `~/.claude/projects` | The conversation text of Code sessions. Claude owns this folder. All accounts use it. |
 
 `CLAUDS_CLAUDE_DATA_DIR` and `CLAUDS_DATA_DIR` move the first two groups. See
@@ -45,7 +45,7 @@ folders back.
 
 ### Finding the Claude processes
 
-`ClaudeProcess` scans `/proc` for processes whose executable is in an install folder of Claude
+`ClaudeProcess` scans `/proc` (in the Flatpak: the `/proc` of the host, through `flatpak-spawn --host`) for processes whose executable is in an install folder of Claude
 (`/usr/lib/claude-desktop`, `/opt/Claude`, and the folders of the unofficial build), or whose first
 arguments point there (a shared `electron` that runs `app.asar`). A process with `--type=` is a
 helper. The `chrome-native-host` of Claude belongs to the web browser and is never touched.

@@ -1,7 +1,7 @@
 # Clauds for KDE Plasma: port design
 
 Status: first working build, not yet tested against a real Claude Desktop on Kubuntu.
-Scope: the `kde/` folder of the `atterdag/clauds` repository. The original macOS Swift app is not part of this repository.
+Scope: the `kde/` folder of the `MultiClauds/clauds-kde` repository. The original macOS Swift app is not part of this repository.
 
 ## 1. Decision
 
@@ -104,7 +104,7 @@ sequenceDiagram
 | --- | --- | --- |
 | Claude data folder | `~/Library/Application Support/Claude` | `~/.config/Claude` (Electron `userData`), override `CLAUDS_CLAUDE_DATA_DIR` |
 | Clauds data folder | `~/Library/Application Support/Clauds` | `~/.local/share/clauds`, override `CLAUDS_DATA_DIR` |
-| Find Claude | bundle id `com.anthropic.claudefordesktop` | `/proc/*/exe` inside the Claude install folder; launcher `claude-desktop` (or `claude-desktop-unofficial`) on `PATH`; overrides `CLAUDS_CLAUDE_LAUNCHER`, `CLAUDS_CLAUDE_INSTALL_DIRS` |
+| Find Claude | bundle id `com.anthropic.claudefordesktop` | `/proc/*/exe` inside the Claude install folder; launcher `claude-desktop` (or `claude-desktop-unofficial`) on `PATH`. In the Flatpak the same checks run on the host through `flatpak-spawn --host`; overrides `CLAUDS_CLAUDE_LAUNCHER`, `CLAUDS_CLAUDE_INSTALL_DIRS` |
 | Main vs. helper process | `NSRunningApplication` vs. `pgrep Claude.app/Contents/` | Electron argument: helpers have `--type=…` |
 | Which copy is which account | `ps -o command=` contains `--user-data-dir=` | `/proc/<pid>/cmdline` `--user-data-dir=` |
 | App launched / quit events | `NSWorkspace` notifications | poll `/proc` every 3 s |
@@ -116,7 +116,7 @@ sequenceDiagram
 | Colors | `NSColor` system colors | `SystemPalette` + `KColorScheme` positive / neutral / negative; avatar hues derived from the scheme's highlight |
 | Dialogs | `NSAlert` | `QMessageBox` / `QInputDialog` (themed by Plasma) |
 | Trash | `FileManager.trashItem` | `QFile::moveToTrash` (freedesktop Trash, shows in Dolphin) |
-| Start at Login | `SMAppService.mainApp` | `~/.config/autostart/io.github.atterdag.clauds.desktop` |
+| Start at Login | `SMAppService.mainApp` | `~/.config/autostart/io.github.multiclauds.clauds-kde.desktop` |
 | Notifications | in-panel note | in-panel note + `KNotification` (`clauds.notifyrc`) |
 | Single instance | bundle id check | `QLocalServer` socket `clauds-<uid>`; `clauds --show-panel` opens the panel |
 | Self-update | Sparkle (EdDSA) | none: distribution through a `.deb` (`cpack -G DEB`), updates through apt or a new `.deb` |

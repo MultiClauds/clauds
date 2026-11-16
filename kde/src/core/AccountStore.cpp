@@ -54,7 +54,7 @@ void renameFolder(const QString &from, const QString &to)
 AccountStore::Paths AccountStore::Paths::standard()
 {
     Paths p;
-    const QString config = QStandardPaths::writableLocation(QStandardPaths::GenericConfigLocation);
+    const QString config = ClaudeProcess::realConfigDir();
     const QString data = QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation);
     p.claudeDir = qEnvironmentVariable("CLAUDS_CLAUDE_DATA_DIR", config + QStringLiteral("/Claude"));
     p.supportDir = qEnvironmentVariable("CLAUDS_DATA_DIR", data + QStringLiteral("/clauds"));

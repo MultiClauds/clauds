@@ -10,8 +10,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/atterdag/clauds/actions/workflows/kde.yml"><img src="https://github.com/atterdag/clauds/actions/workflows/kde.yml/badge.svg" alt="KDE port build"></a>
-  <a href="https://github.com/atterdag/clauds/actions/workflows/codeql.yml"><img src="https://github.com/atterdag/clauds/actions/workflows/codeql.yml/badge.svg" alt="CodeQL"></a>
+  <a href="https://github.com/MultiClauds/clauds-kde/actions/workflows/kde.yml"><img src="https://github.com/MultiClauds/clauds-kde/actions/workflows/kde.yml/badge.svg" alt="KDE port build"></a>
+  <a href="https://github.com/MultiClauds/clauds-kde/releases/latest"><img src="https://img.shields.io/github/v/release/MultiClauds/clauds-kde?label=release" alt="Latest release"></a>
+  <a href="https://github.com/MultiClauds/clauds-kde/actions/workflows/codeql.yml"><img src="https://github.com/MultiClauds/clauds-kde/actions/workflows/codeql.yml/badge.svg" alt="CodeQL"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License"></a>
   <img src="https://img.shields.io/badge/KDE%20Plasma-6-1d99f3.svg" alt="KDE Plasma 6">
   <img src="https://img.shields.io/badge/Qt-6-41cd52.svg" alt="Qt 6">
@@ -91,13 +92,29 @@ is signed out.
 ## Install
 
 > [!WARNING]
-> This is an early version (0.1.0). Make a [backup](#development) before the first switch.
+> This is an early version (0.x). Make a [backup](#development) before the first switch.
 
-There is no download yet. Build the package on your computer. This takes a few minutes.
+Every merge to `main` makes a release with a Flatpak. You can also build the package on your computer.
+This takes a few minutes.
+
+**Flatpak, from a release** (experimental): download
+`io.github.multiclauds.clauds-kde-<version>.flatpak` from the
+[latest release](https://github.com/MultiClauds/clauds-kde/releases/latest), then:
 
 ```bash
-git clone https://github.com/atterdag/clauds.git
-cd clauds
+flatpak install --user io.github.multiclauds.clauds-kde-<version>.flatpak
+flatpak run io.github.multiclauds.clauds-kde
+```
+
+The Flatpak needs the KDE runtime (`org.kde.Platform//6.10`) from Flathub. It finds the Claude
+desktop app that is installed on your computer (for example the `.deb` package) and starts and quits
+it on the host. It works on your real `~/.config/Claude` and `~/.local/share/clauds`.
+
+**Build from source:**
+
+```bash
+git clone https://github.com/MultiClauds/clauds-kde.git
+cd clauds-kde
 make deps       # build dependencies (sudo apt)
 make test       # configure, build, run the test suites
 make install    # build the .deb and install it (sudo apt)
@@ -108,19 +125,23 @@ Then start **Clauds** from the application launcher. The icon appears in the sys
 | Package | Command | State |
 | --- | --- | --- |
 | `.deb` | `make deb`, or `make install` to also install it | The supported way. CI builds it on Ubuntu 26.04. |
-| Flatpak | `make flatpak-deps`, then `make flatpak-install` | Experimental. See [kde/packaging/flatpak](kde/packaging/flatpak). |
+| Flatpak | A release download, or `make flatpak-deps`, then `make flatpak-install` | Experimental. See [kde/packaging/flatpak](kde/packaging/flatpak). `make flatpak` writes `build-flatpak/io.github.multiclauds.clauds-kde.flatpak`. |
 
-`make help` lists every target.
+`make help` lists every target. The version number follows
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html). See
+[CONTRIBUTING.md](CONTRIBUTING.md#versions-and-releases).
 
 ### Updates
 
 The app does not update itself, and it does not look for new versions. To update:
 
 ```bash
-cd clauds
+cd clauds-kde
 git pull
 make install
 ```
+
+For the Flatpak, install the bundle of the newer release the same way as the first time.
 
 An update keeps your accounts and logins. Quit Clauds before you install, and start it again after.
 
@@ -318,7 +339,7 @@ Quit and open that Claude copy. Claude reads the session list only at start.
 
 **"Start at Login" does not stay on.**
 Open System Settings > Autostart, and look for Clauds. The entry is the file
-`~/.config/autostart/io.github.atterdag.clauds.desktop`.
+`~/.config/autostart/io.github.multiclauds.clauds-kde.desktop`.
 
 **The panel opens in the wrong place.**
 On Wayland, KWin places the panel. Use the quick menu (right click) to switch at the icon.
@@ -340,7 +361,7 @@ goes away.
 3. Click the account that you want to keep in the Claude app. It becomes the current account.
 4. Turn off **More > Start at Login**.
 5. Quit Clauds and remove the package: `make uninstall`, or `sudo apt remove clauds`.
-   For the Flatpak: `make flatpak-uninstall`.
+   For the Flatpak: `make flatpak-uninstall`, or `flatpak uninstall io.github.multiclauds.clauds-kde`.
 
 The folder `~/.local/share/clauds` still holds the saved data of your other accounts, and sessions
 that no account owns. Make a backup of it before you delete it:

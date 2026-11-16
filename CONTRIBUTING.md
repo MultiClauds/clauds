@@ -13,8 +13,8 @@ Thank you for your help. This is a small project. Small, clear changes are the e
 You need Kubuntu 25.04 or later (or another distribution with Qt 6.4+ and KDE Frameworks 6).
 
 ```bash
-git clone https://github.com/atterdag/clauds.git
-cd clauds
+git clone https://github.com/MultiClauds/clauds-kde.git
+cd clauds-kde
 make deps    # build dependencies (sudo apt)
 make test    # configure, build, run the test suites
 make run     # start the app from the build folder
@@ -69,6 +69,31 @@ Rules that GitHub applies to `main`:
 - No force push. It cannot be deleted.
 
 Send your pull request to `main`.
+
+## Versions and releases
+
+The version follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html). **Every merge to
+`main` is a release.** The workflow [`release.yml`](.github/workflows/release.yml) picks the next
+version with [`scripts/next-version.sh`](scripts/next-version.sh), builds the Flatpak with it,
+creates the tag `v<version>` and attaches `io.github.multiclauds.clauds-kde-<version>.flatpak` to a
+GitHub release.
+
+The bump comes from the titles of the commits since the last tag:
+
+| Commit title | Bump |
+| --- | --- |
+| `feat!: ...`, `fix(tray)!: ...`, or `BREAKING CHANGE:` in the body | major |
+| `feat: ...`, `feat(tray): ...` | minor |
+| anything else (`fix:`, `docs:`, `kde: ...`) | patch |
+
+While the major version is 0, a breaking change bumps the minor version and a feature bumps the
+patch version. To release 1.0.0, write `1.0.0` in the file `VERSION` in a pull request and merge it.
+The first release uses the number in `VERSION`.
+
+- The file [`VERSION`](VERSION) is the only place that holds the version. Local builds use it. The
+  release workflow writes the release version into it before it builds.
+- Put `[skip release]` in the merge commit message to merge without a release.
+- Local build of the Flatpak: `make flatpak` writes `build-flatpak/io.github.multiclauds.clauds-kde.flatpak`.
 
 ## Sign your commits (DCO)
 

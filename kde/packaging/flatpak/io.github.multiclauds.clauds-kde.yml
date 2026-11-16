@@ -2,7 +2,7 @@
 #
 # Flatpak manifest for Clauds (KDE Plasma port). Build it with `make flatpak` from the
 # repository root. See kde/README.md.
-app-id: io.github.atterdag.clauds
+app-id: io.github.multiclauds.clauds-kde
 runtime: org.kde.Platform
 runtime-version: '6.10'
 sdk: org.kde.Sdk

@@ -6,7 +6,11 @@
 #include "LoginItem.h"
 #include "Profiles.h"
 
+#include "ClaudeProcess.h"
+
 #include <QApplication>
+#include <QDir>
+#include <QProcess>
 #include <QDesktopServices>
 #include <QInputDialog>
 #include <QMessageBox>
@@ -297,7 +301,15 @@ void Actions::setStartsAtLogin(bool on)
 void Actions::showSavedAccounts()
 {
     Q_EMIT hidePanelRequested();
-    QDesktopServices::openUrl(QUrl::fromLocalFile(m_store->profilesDir()));
+    const QString dir = m_store->profilesDir();
+    if (ClaudeProcess::inFlatpak()) {
+        // The portal cannot open a folder for a sandboxed app and Qt waits about 25 s for it
+        // before it gives up. The host opens the folder in the user's file manager at once.
+        QProcess::startDetached(QStringLiteral("flatpak-spawn"),
+                                {QStringLiteral("--host"), QStringLiteral("--directory=") + QDir::homePath(), QStringLiteral("xdg-open"), dir});
+        return;
+    }
+    QDesktopServices::openUrl(QUrl::fromLocalFile(dir));
 }
 
 void Actions::openClaude()
