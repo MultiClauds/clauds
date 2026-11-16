@@ -1,0 +1,27 @@
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# App bundle and build output
+build/
+*.app
+*.dSYM/
+
+# Xcode
+*.xcodeproj/
+xcuserdata/
+DerivedData/
+
+# macOS
+.DS_Store
+
+# Local data: never commit accounts, sessions, or usage answers
+accounts.json
+owners.json
+usage-debug.json
+*.tgz
+
+# Editors and tools
+.vscode/
+.idea/
+.claude/

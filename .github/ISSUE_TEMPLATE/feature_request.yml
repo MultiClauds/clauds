@@ -1,0 +1,27 @@
+name: Feature request
+description: An idea to make Clauds better.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem do you want to solve?
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What do you want the app to do?
+    validations:
+      required: true
+  - type: textarea
+    id: other
+    attributes:
+      label: Other ways that you thought about
+  - type: checkboxes
+    id: rules
+    attributes:
+      label: Project rules
+      options:
+        - label: This idea does not need the app to read tokens, cookies, or passwords.
+          required: true

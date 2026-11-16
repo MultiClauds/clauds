@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security problem
+    url: https://github.com/codeFi/clauds/security/advisories/new
+    about: Report a vulnerability in private. Do not open a public issue.
+  - name: Problem with Claude or your Claude account
+    url: https://support.claude.com
+    about: Clauds is not made by Anthropic. Contact Anthropic for Claude problems.

@@ -1,0 +1,39 @@
+Clauds
+===============
+
+INSTALL
+
+1. Drag "Clauds" to the "Applications" folder.
+2. Open "Clauds" from Applications.
+
+
+macOS SAYS IT CANNOT OPEN THE APP. THIS IS NORMAL.
+
+This app is not notarized. "Notarized" means that the developer paid Apple
+for a developer account and Apple scanned the app. This is a free project
+and has no such account. So macOS blocks the first start.
+
+To permit the app, one time:
+
+1. Try to open the app. A warning shows. Click "Done". Do NOT click
+   "Move to Trash".
+2. Open System Settings > Privacy & Security.
+3. Go down to "Security". Click "Open Anyway" next to "Clauds".
+4. Click "Open Anyway" again, and type your Mac password.
+
+Or use Terminal, one time:
+
+    xattr -dr com.apple.quarantine "/Applications/Clauds.app"
+
+After that, the app opens as usual.
+
+You can also build the app from the source code. Then macOS shows no
+warning. See the project page.
+
+
+PROJECT PAGE
+
+https://github.com/codeFi/clauds
+
+Clauds is free, open source software (MIT License).
+It is not made by Anthropic.
