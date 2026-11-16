@@ -60,24 +60,28 @@ jobs:
         run: |
           sudo apt-get update
           # elfutils has eu-strip and eu-elfcompress, which flatpak-builder runs on the debug info.
-          sudo apt-get install -y --no-install-recommends flatpak flatpak-builder elfutils
+          sudo apt-get install -y --no-install-recommends flatpak elfutils
           # Ubuntu 24.04 blocks the user namespaces that flatpak-builder needs.
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
           flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
           make FLATPAK_BRANCH=6.10 flatpak-runtime
+          # The flatpak-builder and AppStream of Ubuntu 24.04 are too old: AppStream cannot read the
+          # rewritten .desktop file. The current flatpak-builder comes from Flathub.
+          flatpak install --user --noninteractive flathub org.flatpak.Builder
 
       - name: Build the Flatpak
         if: steps.version.outputs.skip != 'true'
-        run: make FLATPAK_BUILDER="flatpak-builder --disable-rofiles-fuse" flatpak
+        run: make FLATPAK_BUILDER="flatpak run org.flatpak.Builder --disable-rofiles-fuse" flatpak
 
       - name: Show why the build failed
         if: failure()
         run: |
           echo "--- appstreamcli and flatpak-builder versions"
-          appstreamcli --version; flatpak-builder --version
+          appstreamcli --version; flatpak run org.flatpak.Builder --version
           echo "--- files that AppStream reads"
           ls -laR build-flatpak/app/files/share/metainfo build-flatpak/app/files/share/applications || true
           cat build-flatpak/app/files/share/metainfo/*.metainfo.xml || true
+          cat -A build-flatpak/app/files/share/applications/*.desktop || true
           echo "--- appstreamcli compose, verbose"
           appstreamcli compose --verbose --origin=flatpak --prefix=/ \
             --components=io.github.multiclauds.clauds-kde,io.github.multiclauds.clauds-kde.desktop \
