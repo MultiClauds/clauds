@@ -8,13 +8,22 @@ name: Release
 on:
   push:
     branches: [main]
+  # A pull request that touches the build builds the Flatpak too, but makes no tag and no release.
+  pull_request:
+    paths:
+      - ".github/workflows/release.yml"
+      - "Makefile"
+      - "VERSION"
+      - "scripts/**"
+      - "kde/packaging/**"
+      - "kde/src/app/CMakeLists.txt"
 
 permissions:
   contents: read
 
 # One release at a time, so two merges cannot pick the same version.
 concurrency:
-  group: release
+  group: release-${{ github.event_name == 'push' && 'main' || github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -61,6 +70,21 @@ jobs:
         if: steps.version.outputs.skip != 'true'
         run: make FLATPAK_BUILDER="flatpak-builder --disable-rofiles-fuse" flatpak
 
+      - name: Show why the build failed
+        if: failure()
+        run: |
+          echo "--- appstreamcli and flatpak-builder versions"
+          appstreamcli --version; flatpak-builder --version
+          echo "--- files that AppStream reads"
+          ls -laR build-flatpak/app/files/share/metainfo build-flatpak/app/files/share/applications || true
+          cat build-flatpak/app/files/share/metainfo/*.metainfo.xml || true
+          echo "--- appstreamcli compose, verbose"
+          appstreamcli compose --verbose --origin=flatpak --prefix=/ \
+            --components=io.github.multiclauds.clauds-kde,io.github.multiclauds.clauds-kde.desktop \
+            --result-root=/tmp/compose-out --data-dir=/tmp/compose-out/data --icons-dir=/tmp/compose-out/icons \
+            build-flatpak/app/files || true
+          find /tmp/compose-out -name '*.yml' -o -name '*.json' | xargs -r cat
+
       - name: Name the bundle after the version
         if: steps.version.outputs.skip != 'true'
         id: bundle
@@ -76,7 +100,7 @@ jobs:
           path: ${{ steps.bundle.outputs.path }}
 
       - name: Tag and publish the release
-        if: steps.version.outputs.skip != 'true'
+        if: steps.version.outputs.skip != 'true' && github.event_name == 'push'
         env:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.version.outputs.version }}
