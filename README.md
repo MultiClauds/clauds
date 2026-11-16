@@ -2,30 +2,68 @@
   <img src="docs/images/icon.png" width="128" height="128" alt="Clauds icon">
 </p>
 
-<h1 align="center">Clauds</h1>
+<h1 align="center">Clauds for KDE Plasma</h1>
 
 <p align="center">
-  A macOS menu bar app that switches the Claude desktop app between accounts.<br>
+  A KDE Plasma system tray app that switches the Claude desktop app for Linux between accounts.<br>
   Every account stays signed in.
 </p>
 
 <p align="center">
-  <a href="https://github.com/codeFi/clauds/actions/workflows/build.yml"><img src="https://github.com/codeFi/clauds/actions/workflows/build.yml/badge.svg" alt="Build"></a>
+  <a href="https://github.com/atterdag/clauds/actions/workflows/kde.yml"><img src="https://github.com/atterdag/clauds/actions/workflows/kde.yml/badge.svg" alt="KDE port build"></a>
+  <a href="https://github.com/atterdag/clauds/actions/workflows/codeql.yml"><img src="https://github.com/atterdag/clauds/actions/workflows/codeql.yml/badge.svg" alt="CodeQL"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License"></a>
-  <img src="https://img.shields.io/badge/macOS-14%2B-black.svg" alt="macOS 14 or later">
-  <img src="https://img.shields.io/badge/Swift-5.10-orange.svg" alt="Swift 5.10">
+  <img src="https://img.shields.io/badge/KDE%20Plasma-6-1d99f3.svg" alt="KDE Plasma 6">
+  <img src="https://img.shields.io/badge/Qt-6-41cd52.svg" alt="Qt 6">
+  <img src="https://img.shields.io/badge/C%2B%2B-20-00599c.svg" alt="C++20">
 </p>
 
 <p align="center">
-  <img src="docs/images/demo.gif" width="450" alt="A short tour of the Clauds panel">
+  <img src="kde/docs/panel.png" width="380" alt="The Clauds panel on KDE Plasma with three fake accounts">
 </p>
 
 > [!IMPORTANT]
 > Clauds is an independent project. It is not made, endorsed, or supported by Anthropic.
 > "Claude" is a trademark of Anthropic, PBC.
 
+> [!NOTE]
+> **This repository is the KDE Plasma port of [Clauds](https://github.com/codeFi/clauds)**, the
+> macOS menu bar app by [Razvan Tanase](https://github.com/codeFi). The port is in [`kde/`](kde/)
+> and is written in C++ with Qt 6 and KDE Frameworks 6. The macOS source (`Sources/`, `build.sh`)
+> is kept as it is upstream, so that upstream changes can be merged. For the macOS app, use the
+> [upstream repository](https://github.com/codeFi/clauds).
+
+## KDE Plasma port
+
+The port has the same features, the same words, and the same data safety rules as the macOS app.
+It is an early version (0.1.0). Make a [backup](kde/README.md#backup) before the first switch.
+
+| Read this | For |
+| --- | --- |
+| [kde/README.md](kde/README.md) | Requirements, install, folders, settings, and the differences from the macOS app |
+| [kde/docs/DESIGN.md](kde/docs/DESIGN.md) | Design, platform mapping, and open risks |
+| The sections from [Why](#why) to [How it works](#how-it-works) below | What the app does. They describe the macOS app; read "menu bar" as "system tray". |
+
+Build and install on Kubuntu 25.04 or later (built for 26.04):
+
+```bash
+git clone https://github.com/atterdag/clauds.git
+cd clauds
+make deps       # build dependencies (sudo apt)
+make test       # configure, build, run the test suites
+make install    # build the .deb and install it (sudo apt)
+```
+
+Then start **Clauds** from the application launcher. `make help` lists every target.
+
+| Package | Command | State |
+| --- | --- | --- |
+| `.deb` | `make deb` | Built and tested in CI on Ubuntu 26.04 |
+| Flatpak | `make flatpak-deps`, then `make flatpak` | Experimental. See [kde/packaging/flatpak](kde/packaging/flatpak). |
+
 ## Contents
 
+- [KDE Plasma port](#kde-plasma-port)
 - [Why](#why)
 - [Features](#features)
 - [Screenshots](#screenshots)
@@ -81,11 +119,15 @@ The pictures use fake accounts. The app makes them itself with `--render-demo`.
 
 ## Requirements
 
+For the KDE port, see [kde/README.md](kde/README.md#requirements). For the macOS app:
+
 - macOS 14 (Sonoma) or later
 - The [Claude desktop app](https://claude.ai/download)
 - Only if you build the app yourself: Xcode 15.3 or later, or the Swift 5.10 toolchain
 
 ## Install
+
+For the KDE port, see [KDE Plasma port](#kde-plasma-port) above. For the macOS app:
 
 There are two ways. Use only one.
 
@@ -391,6 +433,8 @@ The full description, with the session layouts, the owner record, and the data s
 
 ## Development
 
+For the KDE port, use the `make` targets and see [kde/README.md](kde/README.md#development). For the macOS app:
+
 ```bash
 ./build.sh                 # build/Clauds.app
 ./build.sh --install       # also copy it to /Applications
@@ -431,7 +475,8 @@ Bug reports, ideas, and pull requests are welcome.
 
 ## License
 
-[MIT](LICENSE) © 2026 [Razvan Tanase](https://github.com/codeFi)
+[MIT](LICENSE) © 2026 [Razvan Tanase](https://github.com/codeFi) (Clauds, the macOS app) and the
+contributors of the KDE port.
 
 Clauds is not affiliated with Anthropic. "Claude" and "Anthropic" are trademarks of
 Anthropic, PBC. You use this software at your own risk.
