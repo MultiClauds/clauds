@@ -10,7 +10,7 @@ class ChatWindows;
 class LiveUsage;
 
 /// The panel's buttons and menu items: asks the questions (same words as the macOS app), then
-/// calls the store. Linux counterpart of the action methods in App.swift.
+/// calls the store. Linux counterpart of the action methods of the macOS app.
 class Actions : public QObject
 {
     Q_OBJECT

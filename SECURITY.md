@@ -5,7 +5,7 @@ your Code sessions. Security reports are important and welcome.
 
 ## Supported versions
 
-Only the newest version on the `develop` branch gets security fixes, until there is a first release.
+Only the newest version on the `main` branch gets security fixes, until there is a first release.
 
 ## How to report a vulnerability
 

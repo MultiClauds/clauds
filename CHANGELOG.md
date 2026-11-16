@@ -41,6 +41,13 @@ The KDE Plasma port, in [`kde/`](kde/). Its version is 0.1.0 and it has no relea
 
 - Clauds crashed when it quit. The tray menu was deleted before the tray item that uses it.
 
+### Removed
+
+- The macOS source and its scripts (`Sources/`, `Package.swift`, `build.sh`, `release.sh`, the
+  Sparkle appcast, the DMG and release-note files, `docs/RELEASING.md`) and its CI build. They live
+  in the [original repository](https://github.com/codeFi/clauds).
+- The `VERSION` file. The version of the port is in `kde/CMakeLists.txt`.
+
 ### Not in the KDE port
 
 - Self-update (Sparkle). Install a new package instead.
@@ -48,8 +55,8 @@ The KDE Plasma port, in [`kde/`](kde/). Its version is 0.1.0 and it has no relea
 
 ## macOS app (upstream)
 
-The entries below are the history of the macOS app, as released by its author. They are kept so that
-changes from upstream can be merged.
+The entries below are the history of the macOS app, as released by its author. This repository no
+longer holds that app. They are kept as the history that the port started from.
 
 ## [1.0.0] - 2026-11-16
 
@@ -75,5 +82,5 @@ First release with the name Clauds.
 - Data from the first app name ("Claude Switcher") moves to the new folder at the first start
   while Claude is closed.
 
-[Unreleased]: https://github.com/atterdag/clauds/commits/develop
+[Unreleased]: https://github.com/atterdag/clauds/commits/main
 [1.0.0]: https://github.com/codeFi/clauds/releases/tag/v1.0.0

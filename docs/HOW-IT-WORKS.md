@@ -1,29 +1,36 @@
 # How Clauds works
 
-This page is for people who want to know what the app does to the files on the Mac, and for
-contributors.
+This page is for people who want to know what the app does to the files on the computer, and for
+contributors. It describes the KDE Plasma port. Paths follow the XDG folders of a normal Linux user.
 
 ## Folders
 
 | Path | What is in it |
 | --- | --- |
-| `~/Library/Application Support/Claude` | The data folder of the Claude desktop app. It holds the login of the main account. |
-| `~/Library/Application Support/Clauds/accounts.json` | The account list, the active account, and the two switches. |
-| `~/Library/Application Support/Clauds/Profiles/<id>` | The Claude data folder of each account that is not the main one. |
-| `~/Library/Application Support/Clauds/SharedSessions/orgs` | The pool of shared Code session files. |
-| `~/Library/Application Support/Clauds/SharedSessions/owners.json` | Which account made each Code session. |
-| `~/Library/Application Support/Clauds/SharedSessions/_conflicts` | Older versions of files that lost a "newer wins" decision. Nothing is deleted. |
-| `~/Library/Application Support/Clauds/usage-debug.json` | The last raw usage answers, for problem finding. |
+| `~/.config/Claude` | The data folder of the Claude desktop app. It holds the login of the main account. |
+| `~/.local/share/clauds/accounts.json` | The account list, the active account, and the two switches. |
+| `~/.local/share/clauds/Profiles/<id>` | The Claude data folder of each account that is not the main one. |
+| `~/.local/share/clauds/SharedSessions/orgs` | The pool of shared Code session files. |
+| `~/.local/share/clauds/SharedSessions/owners.json` | Which account made each Code session. `owners.json.bak` is the last good copy. |
+| `~/.local/share/clauds/SharedSessions/_conflicts` | Older versions of files that lost a "newer wins" decision. Nothing is deleted. |
+| `~/.local/share/clauds/QtWebEngine/account-<id>` | The claude.ai login of each account, for live usage and chat windows. |
+| `~/.config/autostart/io.github.atterdag.clauds.desktop` | The Start at Login entry, when it is on. |
 | `~/.claude/projects` | The conversation text of Code sessions. Claude owns this folder. All accounts use it. |
+
+`CLAUDS_CLAUDE_DATA_DIR` and `CLAUDS_DATA_DIR` move the first two groups. See
+[kde/README.md](../kde/README.md#settings-for-unusual-installs).
+
+`~/.config` and `~/.local/share` must be on the same disk, because a switch renames folders.
 
 ## The two ways to switch
 
 ### Restart mode (Side by Side off)
 
-1. The app asks Claude to quit and waits for its helper processes.
-2. It renames `Claude` to `Profiles/<old account>`.
-3. It renames `Profiles/<new account>` to `Claude`.
-4. It opens Claude again.
+1. The app sends `SIGTERM` to the Claude processes and waits for them, and for their helper
+   processes, to end.
+2. It renames `~/.config/Claude` to `Profiles/<old account>`.
+3. It renames `Profiles/<new account>` to `~/.config/Claude`.
+4. It starts Claude again.
 
 A rename on the same disk is immediate and moves no data. If a step fails, the app renames the
 folders back.
@@ -32,8 +39,17 @@ folders back.
 
 - The main account uses the normal folder.
 - Each other account runs a second copy of Claude with `--user-data-dir=<Profiles/id>`.
-- A click on an account brings its copy to the front, or starts it.
-- The app finds which copy belongs to which account from the command line of the process.
+- A click on an account starts its copy.
+- The app finds which copy belongs to which account from the command line of the process, which it
+  reads in `/proc`.
+
+### Finding the Claude processes
+
+`ClaudeProcess` scans `/proc` for processes whose executable is in an install folder of Claude
+(`/usr/lib/claude-desktop`, `/opt/Claude`, and the folders of the unofficial build), or whose first
+arguments point there (a shared `electron` that runs `app.asar`). A process with `--type=` is a
+helper. The `chrome-native-host` of Claude belongs to the web browser and is never touched.
+`CLAUDS_CLAUDE_LAUNCHER` and `CLAUDS_CLAUDE_INSTALL_DIRS` override what it looks for.
 
 ## Code sessions
 
@@ -56,7 +72,7 @@ Claude keeps the metadata of each Code session in
 Why: two open Claude copies that write the same session file make a session split, or make it go
 back to an old state. So Side by Side does not share session files by default.
 
-The user can turn on sharing in Side by Side (`shareInSideBySide` in `AccountStore.swift`). The
+The user can turn on sharing in Side by Side (`shareInSideBySide` in `AccountStore`). The
 panel shows a warning first. In that state the app cannot know which open copy made a new session,
 so the next layout change gives new sessions to the main account.
 
@@ -94,51 +110,59 @@ Two sources:
 
 - **Local.** Claude writes `<data folder>/plan-usage-history.json`. It has percent numbers only
   (5-hour and weekly), no reset times, and Claude does not update it often.
-- **Live.** A hidden web view for each account loads a small page on `claude.ai`, then asks
+- **Live.** A hidden Qt WebEngine page for each account loads a small page on `claude.ai`, then asks
   `/api/organizations/<organization>/usage`, as the website does. The answer has each limit with its
   percent and reset time. The app asks every 2 minutes.
 
-The web view of an account uses a separate website data store (`WKWebsiteDataStore(forIdentifier:)`).
-The chat window of that account uses the same store. That is why one sign-in in the window is
-enough for the live numbers.
+The page of an account uses its own persistent web profile (`QWebEngineProfile` named
+`account-<id>`). The chat window of that account uses the same profile. That is why one sign-in in
+the window is enough for the live numbers.
 
 The live source is **not an official interface**. Anthropic can change it at any time. When it
-fails, the panel shows the local numbers.
+fails, the card shows why (see "Usage numbers" in the [README](../README.md#usage-numbers)), and the
+panel keeps the local numbers.
 
 The Claude app and the web views keep separate logins. The app does not take the login out of the
 Claude app. That is why a new account needs two sign-ins.
 
 ## The panel
 
-`PanelController` makes a menu bar item and a borderless, clear window. `PanelChrome` draws the
-round panel. macOS makes the shadow from that shape.
+`Tray` makes a `KStatusNotifierItem` (a `QSystemTrayIcon` when KDE Frameworks 6 is not there) and a
+borderless, transparent Qt Quick window (`qml/Panel.qml`, `qml/AccountCard.qml`). The colors come
+from the color scheme of the user (`Theme`, with `KColorScheme`), so nothing is hard-coded. On X11
+the app places the panel next to the tray icon. On Wayland, KWin places it.
+
+Only one Clauds can run. A second start asks the running one, through a local socket, to open its
+panel.
 
 ## Source files
 
 | File | Job |
 | --- | --- |
-| `App.swift` | Start, command line hooks, the panel content, the actions, the About window. |
-| `PanelController.swift` | The menu bar icon and the panel window. |
-| `PanelParts.swift` | The views in the panel, and the `Usage` model. |
-| `AccountStore.swift` | The account list, the switch, Side by Side, usage refresh. |
-| `AutoSwitch.swift` | The auto-switch rules: when to go to a different account, and to which one. |
-| `SessionLinker.swift` | The session layouts, the owner record, the archive list. |
-| `LiveUsage.swift` | Live usage from claude.ai. |
-| `ChatWindows.swift` | One claude.ai window for each account, and the sign-in flow. |
-| `IconArt.swift` | The menu bar icon and the app icon, drawn in code. |
-| `Updates.swift` | Self-update with Sparkle. See [RELEASING.md](RELEASING.md). |
-| `Demo.swift` | The README pictures, with fake accounts. |
+| `src/app/main.cpp` | Start, command line hooks, single instance. |
+| `src/app/Tray.cpp` | The tray icon, its quick menu, and the panel window. |
+| `src/app/qml/Panel.qml`, `AccountCard.qml` | The panel and the account cards. |
+| `src/app/Actions.cpp` | The actions of the panel and the menus, and the dialogs. |
+| `src/app/Theme.cpp` | The colors from the color scheme. |
+| `src/app/LiveUsage.cpp` | Live usage from claude.ai. |
+| `src/app/ChatWindows.cpp`, `Profiles.cpp` | One claude.ai window for each account, the sign-in flow, and the web profiles. |
+| `src/app/LoginItem.cpp` | The autostart entry. |
+| `src/core/AccountStore.cpp` | The account list, the switch, Side by Side, usage refresh. |
+| `src/core/AutoSwitch.cpp` | The auto-switch rules: when to go to a different account, and to which one. |
+| `src/core/SessionLinker.cpp` | The session layouts, the owner record, the archive list. |
+| `src/core/ClaudeProcess.cpp` | Finding, quitting, and starting the Claude processes. |
+| `src/core/Usage.cpp` | The usage model, and reading the local and live answers. |
+| `tests/` | The unit tests of `src/core` (`make test`). |
+
+`src/core` uses Qt Core only, so that the file and process logic can be tested without a display.
 
 ## Command line hooks
 
-Run the binary inside the app: `"Clauds.app/Contents/MacOS/Clauds" <hook>`.
+Run the installed binary, or `build-kde/src/app/clauds`.
 
 | Hook | What it does |
 | --- | --- |
-| `--render-demo <dir>` | Writes the README pictures and the GIF, with fake accounts. |
-| `--render-panel <png>` | Draws the panel with your real accounts. Do not share this picture. |
-| `--render-icons <dir>` | Writes the icons (the build uses this). |
-| `--login-item [on\|off]` | Prints, or sets, the Start at Login state. |
+| `--render-panel <png>` | Draws the panel with the accounts in `CLAUDS_DATA_DIR` (set it to a folder with fake accounts for a picture to share), without live usage. Use `QT_QPA_PLATFORM=offscreen`. |
 | `--show-panel` | Asks the running app to open its panel. |
 | `--link-sessions <data dir> <shared dir> [tag]` | Applies the shared layout to a data folder. |
 | `--unlink-sessions <data dir> <shared dir> [tag]` | Applies the separate layout to a data folder. |
