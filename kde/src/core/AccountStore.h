@@ -42,7 +42,7 @@ class AccountStore : public QObject
     Q_PROPERTY(QString autoSwitchNote READ autoSwitchNote NOTIFY changed)
 
 public:
-    enum class LiveState { Unknown, Ok, NeedsSignIn, Failed };
+    enum class LiveState { Unknown, Ok, NeedsSignIn, NoAccess, Failed };   // NoAccess: signed in, but not allowed to read usage
     Q_ENUM(LiveState)
 
     struct Paths {

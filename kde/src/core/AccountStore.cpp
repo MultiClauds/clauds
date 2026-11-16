@@ -569,6 +569,7 @@ QVariantList AccountStore::accountsModel() const
         m[QStringLiteral("isLast")] = i == m_accounts.size() - 1;
         const LiveState st = m_liveState.value(a.id, LiveState::Unknown);
         m[QStringLiteral("needsSignIn")] = st == LiveState::NeedsSignIn;
+        m[QStringLiteral("noUsageAccess")] = st == LiveState::NoAccess;
         m[QStringLiteral("liveFailed")] = st == LiveState::Failed;
         m[QStringLiteral("liveDetail")] = m_liveDetail.value(a.id);
         QVariantList limits;

@@ -2,6 +2,7 @@
 #pragma once
 
 #include <QObject>
+#include <QPointer>
 #include <QPoint>
 
 class QMenu;
@@ -42,7 +43,7 @@ private:
     AccountStore *m_store;
     Actions *m_actions;
     QQuickView *m_panel = nullptr;
-    QMenu *m_menu = nullptr;
+    QPointer<QMenu> m_menu;   // KStatusNotifierItem may delete it itself
     qint64 m_hiddenAt = 0;
 #ifdef CLAUDS_HAVE_KF6
     KStatusNotifierItem *m_item = nullptr;

@@ -93,7 +93,11 @@ Tray::Tray(AccountStore *store, Actions *actions, Theme *theme, QObject *parent)
 Tray::~Tray()
 {
     delete m_panel;
-    delete m_menu;
+    // The tray item uses the menu while it is destroyed, so it goes first. After it, the menu is
+    // either still ours (delete it) or the item already took it with it (the pointer is null).
+    delete m_item;
+    m_item = nullptr;
+    delete m_menu.data();
 }
 
 void Tray::updateToolTip()

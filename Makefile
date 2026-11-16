@@ -42,7 +42,7 @@ APT_BUILD_DEPS := cmake g++ make file dpkg-dev extra-cmake-modules \
 
 .PHONY: help
 help: ## List the targets
-	@awk 'BEGIN {FS = ":.*## "} /^[a-zA-Z_-]+:.*## / {printf "  %-12s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*## "} /^[a-zA-Z_-]+:.*## / {printf "  %-16s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 .PHONY: deps
 deps: ## Install the build dependencies (Kubuntu, uses sudo apt)
@@ -88,3 +88,38 @@ uninstall: ## Remove the installed package (uses sudo apt)
 .PHONY: clean
 clean: ## Delete the build folder
 	rm -rf $(BUILD_DIR)
+
+# ---- Flatpak (see kde/packaging/flatpak) ----
+
+FLATPAK_ID       := io.github.atterdag.clauds
+FLATPAK_MANIFEST := kde/packaging/flatpak/$(FLATPAK_ID).yml
+FLATPAK_BUILD    ?= build-flatpak
+FLATPAK_REPO     ?= $(FLATPAK_BUILD)/repo
+FLATPAK_BUNDLE   ?= $(FLATPAK_BUILD)/clauds.flatpak
+FLATPAK_BRANCH   ?= 6.10
+FLATPAK_BUILDER  ?= flatpak-builder
+
+.PHONY: flatpak-deps
+flatpak-deps: ## Install flatpak-builder, the KDE runtime, SDK and Qt WebEngine base (sudo apt, flathub)
+	$(SUDO) apt install flatpak flatpak-builder
+	flatpak install --user --noninteractive flathub \
+		org.kde.Platform//$(FLATPAK_BRANCH) org.kde.Sdk//$(FLATPAK_BRANCH) \
+		io.qt.qtwebengine.BaseApp//$(FLATPAK_BRANCH)
+
+.PHONY: flatpak
+flatpak: ## Build the Flatpak and write build-flatpak/clauds.flatpak
+	$(FLATPAK_BUILDER) --user --force-clean --state-dir=$(FLATPAK_BUILD)/state \
+		--repo=$(FLATPAK_REPO) $(FLATPAK_BUILD)/app $(FLATPAK_MANIFEST)
+	flatpak build-bundle $(FLATPAK_REPO) $(FLATPAK_BUNDLE) $(FLATPAK_ID)
+
+.PHONY: flatpak-install
+flatpak-install: flatpak ## Build the Flatpak and install it for your user
+	flatpak install --user --noninteractive --reinstall $(FLATPAK_BUNDLE)
+
+.PHONY: flatpak-run
+flatpak-run: ## Start the installed Flatpak
+	flatpak run $(FLATPAK_ID)
+
+.PHONY: flatpak-uninstall
+flatpak-uninstall: ## Remove the installed Flatpak (keeps your data folders)
+	flatpak uninstall --user --noninteractive $(FLATPAK_ID)

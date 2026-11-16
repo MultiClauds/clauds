@@ -125,6 +125,14 @@ void LiveUsage::runScript(QWebEnginePage *page, Callback done, int attempt)
                 return;
             }
             const int status = object.value(QStringLiteral("status")).toInt();
+            if (status == 403 && object.value(QStringLiteral("step")).toString() == QLatin1String("usage")
+                && !object.value(QStringLiteral("body")).toString().trimmed().startsWith(QLatin1Char('<'))) {
+                // The login works (the organization was found) and claude.ai answered with a JSON
+                // refusal. That is a missing permission, not a missing login. An HTML answer
+                // (a challenge or login page) still counts as "sign in".
+                done(std::nullopt, State::NoAccess, {});
+                return;
+            }
             if (status == 401 || status == 403) {
                 done(std::nullopt, State::NeedsSignIn, {});
                 return;
