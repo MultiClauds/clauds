@@ -273,10 +273,11 @@ void AccountStore::switchTo(const QString &id)
     const std::optional<QString> currentTag = current.isEmpty() ? std::nullopt : std::optional(Account::tag(current));
     const QString targetTag = Account::tag(id);
     const ClaudeProcess claude = m_claude;
+    const QStringList dataDirs{claudeDir, profilesDir()};
 
     runJob(
         [=] {
-            if (!claude.quitAll())
+            if (!claude.quitAll(dataDirs))
                 throw SwitchError("Claude did not quit. Close Claude yourself, then try again.");
 
             // 0. The outgoing account made the new shared sessions. Then put its sessions in the wanted state.
@@ -325,10 +326,11 @@ void AccountStore::applySessionLayout(std::function<void()> change)
     const bool wasRunning = isClaudeRunning();
     const bool wasShared = sessionsAreShared();
     const ClaudeProcess claude = m_claude;
+    const QStringList dataDirs{claudeDir(), profilesDir()};
     // The quit must happen before the setting changes, so a failed quit changes nothing.
     // The quit runs in the job; the setting change and the folder work follow in a second job.
-    runJob([claude] {
-        if (!claude.quitAll())
+    runJob([claude, dataDirs] {
+        if (!claude.quitAll(dataDirs))
             throw SwitchError("Claude did not quit. Close Claude yourself, then try again.");
     }, [this, change, wasRunning, wasShared] {
         change();

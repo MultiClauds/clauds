@@ -48,9 +48,53 @@ private Q_SLOTS:
 
     void separateUserDataDirArgument()
     {
-        ClaudeProcess::Proc p{1, {}, {QStringLiteral("claude"), QStringLiteral("--user-data-dir"), QStringLiteral("/a/b/")}};
+        ClaudeProcess::Proc p{1, QStringLiteral("/usr/lib/claude-desktop/claude-desktop"),
+                              {QStringLiteral("claude"), QStringLiteral("--user-data-dir"), QStringLiteral("/a/b/")}};
         QCOMPARE(p.userDataDir(), QStringLiteral("/a/b"));
-        QVERIFY(p.isMain());
+        QVERIFY(ClaudeProcess({}, {}).isMain(p));
+    }
+
+    /// The process list of the official claude-desktop package on Kubuntu 26.04 (Electron 45),
+    /// as seen with "ps -eo pid,args" on a real machine. Paths are shortened.
+    void officialPackageProcessTree()
+    {
+        const QString root = tmp.path() + QStringLiteral("/real");
+        const QString install = root + QStringLiteral("/usr/lib/claude-desktop");
+        const QString exe = install + QStringLiteral("/claude-desktop");
+        const QString data = root + QStringLiteral("/home/u/.config/Claude");
+        const QString code = data + QStringLiteral("/claude-code/2.1.325/00b1b977bcc3/claude");
+        for (const auto &f : {exe, install + QStringLiteral("/chrome_crashpad_handler"),
+                              install + QStringLiteral("/resources/disclaimer"),
+                              install + QStringLiteral("/resources/cowork-linux-helper"),
+                              install + QStringLiteral("/resources/chrome-native-host"), code})
+            writeFile(f, "");
+        const QString proc = root + QStringLiteral("/proc");
+        fakeProc(proc, 13370, exe, {exe});
+        fakeProc(proc, 13644, exe, {exe, QStringLiteral("--type=zygote"), QStringLiteral("--no-zygote-sandbox")});
+        fakeProc(proc, 14002, install + QStringLiteral("/chrome_crashpad_handler"),
+                 {install + QStringLiteral("/chrome_crashpad_handler"), QStringLiteral("--database=") + data + QStringLiteral("/Crashpad")});
+        fakeProc(proc, 14252, exe, {exe, QStringLiteral("--type=gpu-process"), QStringLiteral("--user-data-dir=") + data});
+        fakeProc(proc, 15617, install + QStringLiteral("/resources/cowork-linux-helper"),
+                 {install + QStringLiteral("/resources/cowork-linux-helper"), QStringLiteral("-socket"), QStringLiteral("/run/user/1000/x.sock")});
+        fakeProc(proc, 40936, install + QStringLiteral("/resources/disclaimer"),
+                 {install + QStringLiteral("/resources/disclaimer"), QStringLiteral("--pgroup"), QStringLiteral("--"), code});
+        fakeProc(proc, 40937, code, {code, QStringLiteral("--output-format"), QStringLiteral("stream-json")});
+        fakeProc(proc, 50000, install + QStringLiteral("/resources/chrome-native-host"),
+                 {install + QStringLiteral("/resources/chrome-native-host"), QStringLiteral("chrome-extension://x/")});
+
+        ClaudeProcess cp(exe, {install}, proc);
+        // One open copy, on the normal data folder, and nothing else counts as a copy.
+        QCOMPARE(cp.mains().size(), 1);
+        QCOMPARE(cp.mains().first().pid, 13370);
+        QCOMPARE(cp.mainsFor({}).size(), 1);
+        QVERIFY(cp.mainsFor(data).isEmpty());
+        // Helpers: zygote, crashpad, GPU, Cowork, disclaimer. Never the browser's native host.
+        QCOMPARE(cp.all().size(), 6);
+        for (const auto &p : cp.all())
+            QVERIFY(p.pid != 50000);
+        // A Code session keeps the data folder busy.
+        QCOMPARE(cp.runningFrom({data}).size(), 1);
+        QCOMPARE(cp.runningFrom({data}).first().pid, 40937);
     }
 
     void notInstalled()
