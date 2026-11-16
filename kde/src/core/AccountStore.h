@@ -18,7 +18,7 @@
 
 namespace clauds {
 
-/// Keeps one Claude desktop data folder per account (Linux port of AccountStore.swift).
+/// Keeps one Claude desktop data folder per account (Linux port of the macOS app's account store).
 ///
 /// The active account's data lives where Claude expects it:
 ///   ~/.config/Claude

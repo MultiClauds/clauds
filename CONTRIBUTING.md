@@ -23,9 +23,8 @@ make run     # start the app from the build folder
 The code is in `kde/`: `src/core` (Qt Core only, with the tests) and `src/app` (tray, panel, web
 views, KDE integration). See [kde/README.md](kde/README.md#development).
 
-Keep your changes inside `kde/`. The other source folders (`Sources/`, `Package.swift`, `build.sh`)
-are the upstream app, kept as they are so that upstream changes can be merged. Send changes for
-that app to the [upstream repository](https://github.com/codeFi/clauds).
+This repository has no macOS code. Send changes for the macOS app to the
+[original repository](https://github.com/codeFi/clauds).
 
 ## Test safely
 
@@ -53,26 +52,23 @@ This app moves real Claude data folders. Be careful when you test.
 - If you change the panel, make the picture again:
   `QT_QPA_PLATFORM=offscreen build-kde/src/app/clauds --render-panel kde/docs/panel.png`.
 
-## Branches (Gitflow)
+## Branches
 
-This project uses the Gitflow branch model.
+`main` is the default branch. It is the next version of the port, and every release is a tag
+`v<version>` on it.
 
-| Branch | What it is | Starts from | Merges into |
-| --- | --- | --- | --- |
-| `main` | The released versions. Each merge is a release, and has a tag `v<version>`. | | |
-| `develop` | The next version. This is the default branch. | | |
-| `feature/<name>` | One new function or change. | `develop` | `develop` |
-| `release/<version>` | The last steps before a release: version number, changelog, release notes. | `develop` | `main` and `develop` |
-| `hotfix/<version>` | An urgent fix for the released version. | `main` | `main` and `develop` |
+| Branch | What it is |
+| --- | --- |
+| `main` | The default branch. It changes only through a pull request. |
+| `feature/<name>`, `fix/<name>` | One change. It starts from `main` and goes back to `main`. |
+| `develop` | Read-only. It holds the history from before the move to `main`. Do not send pull requests to it. |
 
-Rules that GitHub applies:
+Rules that GitHub applies to `main`:
 
-- `main` and `develop` change only through a pull request. The build check must pass.
-- No force push to `main` or `develop`. They cannot be deleted.
-- `main` gets merge commits only, so that each release stays one clear point in the history.
-- A release tag (`v*`) cannot be changed or deleted.
+- It changes only through a pull request. The checks (KDE port, DCO, CodeQL) must pass.
+- No force push. It cannot be deleted.
 
-Send your pull request to `develop`. Only release and hotfix branches go to `main`.
+Send your pull request to `main`.
 
 ## Sign your commits (DCO)
 
@@ -82,7 +78,7 @@ With it, you state that you have the right to send the change under the license 
 
 ```bash
 git commit -s                      # adds the line
-git rebase --signoff develop       # adds it to commits that you already made
+git rebase --signoff main          # adds it to commits that you already made
 ```
 
 A check on each pull request fails when a commit has no such line.
@@ -92,7 +88,6 @@ A check on each pull request fails when a commit has no such line.
 | Check | What it does |
 | --- | --- |
 | KDE port | Builds with plain Qt 6 and with KDE Frameworks 6, runs the tests, makes the `.deb` |
-| Build | Builds the upstream app, to see that a merge from upstream did not break it |
 | DCO | Every commit has a `Signed-off-by` line |
 | CodeQL | Looks for security problems in the C++ code and in the workflows |
 | Dependency review | Stops a new dependency that has a known vulnerability |
@@ -102,7 +97,7 @@ supply-chain practices of the repository each week.
 
 ## Pull requests
 
-1. Make a branch from `develop`: `git switch -c feature/<name> develop`.
+1. Make a branch from `main`: `git switch -c feature/<name> main`.
 2. Make sure that `make test` passes and that the build gives no new warnings.
 3. Add a line to `CHANGELOG.md` below "Unreleased".
 4. Fill in the pull request form. Say how you tested the change.

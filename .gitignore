@@ -1,20 +1,6 @@
-# Swift Package Manager
-.build/
-build-kde/
-.swiftpm/
-
-# App bundle and build output
+# Build output
 build/
-*.app
-*.dSYM/
-
-# Xcode
-*.xcodeproj/
-xcuserdata/
-DerivedData/
-
-# macOS
-.DS_Store
+build-kde/
 
 # Local data: never commit accounts, sessions, or usage answers
 accounts.json

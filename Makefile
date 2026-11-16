@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: MIT
 #
-# Shortcuts for the KDE port (kde/). The macOS app is built with ./build.sh.
+# Shortcuts for building, testing and packaging Clauds for KDE Plasma (kde/).
 #
 #   make            configure and build
 #   make test       run the test suites

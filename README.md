@@ -27,9 +27,9 @@
 > "Claude" is a trademark of Anthropic, PBC.
 
 > [!NOTE]
-> This repository is the KDE Plasma port of [Clauds](https://github.com/codeFi/clauds), the macOS
-> menu bar app by [Razvan Tanase](https://github.com/codeFi). For the macOS app, use the
-> [upstream repository](https://github.com/codeFi/clauds). See
+> Clauds for KDE Plasma is a port of [Clauds](https://github.com/codeFi/clauds), the macOS
+> menu bar app by [Razvan Tanase](https://github.com/codeFi). This repository holds only the port.
+> For the macOS app, use the [original repository](https://github.com/codeFi/clauds). See
 > [Relation to the macOS app](#relation-to-the-macos-app).
 
 ## Contents
@@ -398,15 +398,15 @@ Bug reports, ideas, and pull requests are welcome.
 
 ## Relation to the macOS app
 
-Clauds is a macOS menu bar app by [Razvan Tanase](https://github.com/codeFi). This repository is a
-fork that adds the KDE Plasma port in [`kde/`](kde/), written in C++ with Qt 6 and KDE Frameworks 6.
+Clauds is a macOS menu bar app by [Razvan Tanase](https://github.com/codeFi). This project began as
+a fork of it and is now a separate repository. It holds the KDE Plasma port, written in C++ with
+Qt 6 and KDE Frameworks 6 (the code is in [`kde/`](kde/)).
 
 - The port keeps the same features, the same words, and the same data safety rules.
 - It has no self-update. See [the differences](kde/README.md#use).
-- The macOS source (`Sources/`, `Package.swift`, `build.sh`, `docs/`) is kept as it is upstream,
-  so that upstream changes can be merged. It is not released from here. For the macOS
-  app, its download, and its documentation, go to the
-  [upstream repository](https://github.com/codeFi/clauds).
+- The macOS source is no longer in this repository, and the two projects do not share code. For the
+  macOS app, its download, and its documentation, go to the
+  [original repository](https://github.com/codeFi/clauds).
 
 ## Third-party software
 

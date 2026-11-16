@@ -55,7 +55,7 @@ modules:
       - -DCLAUDS_WITH_KF6=ON
     sources:
       - type: dir
-        path: ../../..   # the repository root: kde/CMakeLists.txt reads ../VERSION
+        path: ../../..   # the repository root
         skip:
           - .git
           - build-kde
