@@ -9,8 +9,8 @@ inline void writeFile(const QString &path, const QByteArray &data)
 {
     QDir().mkpath(QFileInfo(path).absolutePath());
     QFile f(path);
-    f.open(QIODevice::WriteOnly | QIODevice::Truncate);
-    f.write(data);
+    if (f.open(QIODevice::WriteOnly | QIODevice::Truncate))
+        f.write(data);
 }
 
 inline QByteArray readFile(const QString &path)

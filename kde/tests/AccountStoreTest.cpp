@@ -84,10 +84,17 @@ private Q_SLOTS:
         const QString a = store.adoptCurrentLogin(QStringLiteral("A"));
         const QString b = store.addAccount(QStringLiteral("B"));
         writeFile(store.profileDir(b) + QStringLiteral("/data"), "x");
-        QVERIFY(!store.remove(a));
-        QVERIFY(store.remove(b));
-        QVERIFY(!QFileInfo::exists(store.profileDir(b)));
-        QCOMPARE(store.accounts().size(), 1);
+        QVERIFY(!store.remove(a));   // never the active account
+        // Some build containers have no usable Trash. Then nothing may be lost: the data and
+        // the account must both stay.
+        if (store.remove(b)) {
+            QVERIFY(!QFileInfo::exists(store.profileDir(b)));
+            QCOMPARE(store.accounts().size(), 1);
+        } else {
+            QVERIFY(QFileInfo::exists(store.profileDir(b) + QStringLiteral("/data")));
+            QCOMPARE(store.accounts().size(), 2);
+            qWarning("Trash not available here: checked the failure path only");
+        }
     }
 
     void sideBySideKeepsSessionsSeparate()
