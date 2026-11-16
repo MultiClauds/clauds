@@ -144,10 +144,15 @@ void LiveUsage::runScript(QWebEnginePage *page, Callback done, int attempt)
             }
             const auto parsed = Usage::parseLive(object.value(QStringLiteral("usage")).toObject());
             if (!parsed) {
-                // Names of the fields only, never their values: enough to see what claude.ai sent.
-                const QStringList keys = object.value(QStringLiteral("usage")).toObject().keys();
-                done(std::nullopt, State::Failed,
-                     QStringLiteral("usage format changed (fields: %1)").arg(keys.isEmpty() ? QStringLiteral("none") : keys.join(QStringLiteral(", "))));
+                const QJsonObject usage = object.value(QStringLiteral("usage")).toObject();
+                // Names and types only, never values: enough to see what claude.ai sent.
+                const QString detail = QStringLiteral("%1; fields: %2").arg(Usage::shape(usage), usage.keys().join(QStringLiteral(", ")));
+                if (Usage::hasNoLimits(usage)) {
+                    done(std::nullopt, State::NoLimits, detail);
+                    return;
+                }
+                qWarning("clauds: usage format changed (%s)", qPrintable(detail));
+                done(std::nullopt, State::Failed, QStringLiteral("the answer of claude.ai has a new format"));
                 return;
             }
             done(parsed, State::Ok, {});
@@ -166,7 +171,7 @@ void LiveUsage::refresh(AccountStore *store, const QStringList &ids)
     fetch(id, [=, this](std::optional<Usage> usage, State state, QString detail) {
         if (!guard)
             return;
-        if (state == State::Failed)
+        if (state == State::Failed || state == State::NoLimits)
             qWarning("clauds: live usage for account %s failed: %s", qPrintable(id), qPrintable(detail));
         guard->setLiveResult(id, usage, state, detail);
         refresh(guard, rest);

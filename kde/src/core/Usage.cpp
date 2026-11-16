@@ -99,6 +99,28 @@ QDateTime Usage::parseDate(const QString &text)
     return d.isValid() ? d.toUTC() : QDateTime();
 }
 
+bool Usage::hasNoLimits(const QJsonObject &usage)
+{
+    auto empty = [&usage](const char *key) {
+        const auto v = usage.value(QLatin1String(key));
+        return v.isUndefined() || v.isNull() || (v.isObject() && v.toObject().isEmpty())
+            || (v.isArray() && v.toArray().isEmpty());
+    };
+    return !usage.isEmpty() && empty("limits") && empty("five_hour") && empty("seven_day");
+}
+
+QString Usage::shape(const QJsonObject &usage)
+{
+    auto describe = [&usage](const char *key) {
+        const auto v = usage.value(QLatin1String(key));
+        QString type = v.isUndefined() ? QStringLiteral("missing") : v.isNull() ? QStringLiteral("null")
+            : v.isArray() ? QStringLiteral("array[%1]").arg(v.toArray().size())
+            : v.isObject() ? QStringLiteral("object[%1]").arg(v.toObject().size()) : QStringLiteral("value");
+        return QStringLiteral("%1: %2").arg(QLatin1String(key), type);
+    };
+    return QStringList{describe("five_hour"), describe("seven_day"), describe("limits")}.join(QStringLiteral(", "));
+}
+
 std::optional<Usage> Usage::parseLive(const QJsonObject &usage, const QDateTime &now)
 {
     QList<Limit> limits;

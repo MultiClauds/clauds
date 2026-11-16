@@ -43,6 +43,17 @@ private Q_SLOTS:
         QCOMPARE(u->limits[0].percent, 50);
     }
 
+    void noLimitsAnswer()
+    {
+        const auto json = QJsonDocument::fromJson(R"({"five_hour":null,"seven_day":null,"limits":[],"spend":{"x":1}})").object();
+        QVERIFY(!Usage::parseLive(json));
+        QVERIFY(Usage::hasNoLimits(json));
+        QCOMPARE(Usage::shape(json), QStringLiteral("five_hour: null, seven_day: null, limits: array[0]"));
+        const auto some = QJsonDocument::fromJson(R"({"five_hour":{"utilization":5},"limits":[]})").object();
+        QVERIFY(!Usage::hasNoLimits(some));
+        QVERIFY(!Usage::hasNoLimits(QJsonObject{}));
+    }
+
     void parseNothing() { QVERIFY(!Usage::parseLive(QJsonObject{})); }
 
     void afterResetIsEmpty()

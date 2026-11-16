@@ -107,7 +107,7 @@ Item {
             }
 
             Label {
-                visible: card.account.limits.length === 0 || card.account.needsSignIn || card.account.noUsageAccess || card.account.liveFailed
+                visible: card.account.limits.length === 0 || card.account.needsSignIn || card.account.noUsageAccess || card.account.noUsageLimits || card.account.liveFailed
                 Layout.fillWidth: true
                 wrapMode: Text.WordWrap
                 opacity: 0.65
@@ -116,6 +116,7 @@ Item {
                     : card.account.needsSignIn ? "Sign in for live usage (… menu)"
                     : card.account.noUsageAccess ? "Live usage is not available: this account is not allowed to read usage and billing information on claude.ai. Ask an organization admin for access."
                                                    + (card.account.limits.length > 0 ? " Showing the numbers from the Claude app." : "")
+                    : card.account.noUsageLimits ? "No 5-hour or weekly limits to show: claude.ai reports none for this account."
                     : card.account.liveFailed ? "Could not load new usage numbers" + (card.account.liveDetail ? ": " + card.account.liveDetail : "")
                                                + (card.account.age ? " · " + card.account.age : "")
                     : "No usage numbers yet"
@@ -135,7 +136,7 @@ Item {
     Menu {
         id: accountMenu
         MenuItem {
-            visible: card.account.liveFailed || card.account.noUsageAccess
+            visible: card.account.liveFailed || card.account.noUsageAccess || card.account.noUsageLimits
             height: visible ? implicitHeight : 0
             text: "Load Usage Again"
             onTriggered: actions.reloadUsage()

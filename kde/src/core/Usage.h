@@ -42,6 +42,12 @@ struct Usage {
     /// Parses the answer of claude.ai /api/organizations/<org>/usage.
     static std::optional<Usage> parseLive(const QJsonObject &usage,
                                           const QDateTime &now = QDateTime::currentDateTimeUtc());
+    /// True when claude.ai answered normally but names no usage window: "limits" is empty or
+    /// missing and "five_hour" / "seven_day" are missing, null or empty. For example a plan that
+    /// reports spend instead of 5-hour and weekly limits.
+    static bool hasNoLimits(const QJsonObject &usage);
+    /// Types only, never values, for the log: "five_hour: null, seven_day: null, limits: array[0]".
+    static QString shape(const QJsonObject &usage);
     static QDateTime parseDate(const QString &text);
 };
 
