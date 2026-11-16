@@ -118,6 +118,8 @@ Q_SIGNALS:
     /// Mode "ask": the app shows a question, then calls switchTo(targetID) on yes.
     void autoSwitchProposed(const QString &currentName, const QString &targetID, const QString &targetName,
                             const QString &reason, int targetPercent);
+    /// Mode "auto": a switch started by itself. The app shows a notification.
+    void autoSwitched(const QString &note);
 
 private:
     void load();

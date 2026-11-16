@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/Panel.qml</file>
+        <file>qml/AccountCard.qml</file>
+        <file>icons/clauds.svg</file>
+        <file>icons/clauds-tray-symbolic.svg</file>
+    </qresource>
+</RCC>

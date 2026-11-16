@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22">
+  <!-- Monochrome tray icon. Plasma recolors ColorScheme-Text to the panel's text color. -->
+  <style type="text/css" id="current-color-scheme">.ColorScheme-Text { color:#232629; }</style>
+  <path class="ColorScheme-Text" fill="currentColor" fill-opacity="0.5"
+        d="M5 11a3 3 0 0 1 .9-5.9A4 4 0 0 1 13 6.1a2.6 2.6 0 0 1 .3 4.9z"/>
+  <path class="ColorScheme-Text" fill="currentColor"
+        d="M8.2 18a3.2 3.2 0 0 1 .9-6.3A4 4 0 0 1 16.5 12.4a2.8 2.8 0 0 1 .3 5.6z"/>
+</svg>

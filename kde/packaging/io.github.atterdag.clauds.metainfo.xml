@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.atterdag.clauds</id>
+  <name>Clauds</name>
+  <summary>Switch the Claude desktop app between accounts</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <description>
+    <p>A KDE Plasma system tray app that keeps one Claude desktop data folder per account and
+    switches between them with one click, or runs one Claude copy per account side by side.
+    Clauds is an independent project. It is not made, endorsed, or supported by Anthropic.</p>
+  </description>
+  <launchable type="desktop-id">io.github.atterdag.clauds.desktop</launchable>
+  <url type="homepage">https://github.com/atterdag/clauds</url>
+</component>

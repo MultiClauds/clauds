@@ -37,3 +37,13 @@ if(BUILD_TESTING)
     enable_testing()
     add_subdirectory(tests)
 endif()
+
+# ---- Package: cpack -G DEB (for Kubuntu 26.04) ----
+set(CPACK_PACKAGE_NAME "clauds")
+set(CPACK_PACKAGE_VENDOR "Clauds KDE port")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Switch the Claude desktop app between accounts (KDE Plasma)")
+set(CPACK_PACKAGE_CONTACT "https://github.com/atterdag/clauds/issues")
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+set(CPACK_DEBIAN_PACKAGE_RECOMMENDS "claude-desktop, qml6-module-org-kde-desktop")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "qml6-module-qtquick-controls, qml6-module-qtquick-layouts, qml6-module-qtquick-templates, qml6-module-qtquick-window")
+include(CPack)

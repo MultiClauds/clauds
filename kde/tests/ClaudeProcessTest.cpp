@@ -32,9 +32,13 @@ private Q_SLOTS:
         fakeProc(proc, 200, exe, {exe, QStringLiteral("--user-data-dir=/home/u/.local/share/clauds/Profiles/x/")});
         fakeProc(proc, 300, QStringLiteral("/usr/bin/claude"), {QStringLiteral("claude")});   // Claude Code CLI: not ours
         writeFile(proc + QStringLiteral("/self/cmdline"), "x");
+        // A shared Electron that runs the app from the install folder.
+        writeFile(tmp.path() + QStringLiteral("/usr/lib/electron/electron"), "");
+        fakeProc(proc, 400, tmp.path() + QStringLiteral("/usr/lib/electron/electron"),
+                 {QStringLiteral("electron"), install + QStringLiteral("/app.asar"), QStringLiteral("--type=gpu-process")});
 
         ClaudeProcess cp(exe, {install}, proc);
-        QCOMPARE(cp.all().size(), 3);
+        QCOMPARE(cp.all().size(), 4);
         QCOMPARE(cp.mains().size(), 2);
         QCOMPARE(cp.mainsFor({}).size(), 1);
         QCOMPARE(cp.mainsFor({}).first().pid, 100);

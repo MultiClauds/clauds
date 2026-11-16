@@ -8,6 +8,7 @@
 #include <QStandardPaths>
 #include <QThread>
 
+#include <algorithm>
 #include <csignal>
 #include <sys/types.h>
 
@@ -85,20 +86,26 @@ QList<ClaudeProcess::Proc> ClaudeProcess::all() const
             continue;
         const QString base = m_procRoot + QLatin1Char('/') + name;
         const QString exe = QFileInfo(base + QStringLiteral("/exe")).symLinkTarget();
-        bool inside = false;
-        for (const auto &dir : m_installDirs)
-            if (exe.startsWith(dir + QLatin1Char('/')))
-                inside = true;
-        if (!inside)
-            continue;
         QFile cmd(base + QStringLiteral("/cmdline"));
-        if (!cmd.open(QIODevice::ReadOnly))
-            continue;
+        if (exe.isEmpty() || !cmd.open(QIODevice::ReadOnly))
+            continue;   // not our user's process, or gone
         QStringList args;
         for (const auto &part : cmd.readAll().split('\0'))
             if (!part.isEmpty())
                 args << QString::fromLocal8Bit(part);
-        out.append({pid, exe, args});
+        // Ours if the executable is in an install folder, or if a shared Electron runs the app
+        // from there (for example "electron /usr/lib/claude-desktop/app.asar").
+        auto inInstallDir = [this](const QString &path) {
+            for (const auto &dir : m_installDirs)
+                if (path.startsWith(dir + QLatin1Char('/')))
+                    return true;
+            return false;
+        };
+        bool ours = inInstallDir(exe);
+        for (int i = 0; !ours && i < std::min<qsizetype>(args.size(), 3); ++i)
+            ours = inInstallDir(args.at(i));
+        if (ours)
+            out.append({pid, exe, args});
     }
     return out;
 }

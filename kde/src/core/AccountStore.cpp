@@ -541,6 +541,7 @@ void AccountStore::checkAutoSwitch()
     }
     m_autoSwitchNote = QStringLiteral("Switched to %1. %2 was near a limit. %3").arg(plan->target.name, current->name, reason);
     switchTo(plan->target.id);
+    Q_EMIT autoSwitched(m_autoSwitchNote);
 }
 
 // MARK: QML model

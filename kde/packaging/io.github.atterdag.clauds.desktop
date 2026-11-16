@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Clauds
+GenericName=Claude Account Switcher
+Comment=Switch the Claude desktop app between accounts. Every account stays signed in.
+Exec=clauds
+Icon=clauds
+Categories=Utility;Qt;KDE;
+Keywords=claude;account;switch;profile;
+StartupNotify=false
+X-KDE-StartupNotify=false
