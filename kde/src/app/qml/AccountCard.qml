@@ -114,7 +114,8 @@ Item {
                 font.pointSize: Qt.application.font.pointSize * 0.85
                 text: card.account.isLoading ? "Loading usage…"
                     : card.account.needsSignIn ? "Sign in for live usage (… menu)"
-                    : card.account.liveFailed ? "Could not load new usage numbers" + (card.account.age ? " · " + card.account.age : "")
+                    : card.account.liveFailed ? "Could not load new usage numbers" + (card.account.liveDetail ? ": " + card.account.liveDetail : "")
+                                               + (card.account.age ? " · " + card.account.age : "")
                     : "No usage numbers yet"
             }
         }

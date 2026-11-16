@@ -495,10 +495,14 @@ void AccountStore::setLoading(const QString &id, bool loading)
     Q_EMIT changed();
 }
 
-void AccountStore::setLiveResult(const QString &id, const std::optional<Usage> &usage, LiveState state, const QString &)
+void AccountStore::setLiveResult(const QString &id, const std::optional<Usage> &usage, LiveState state, const QString &detail)
 {
     m_loading.remove(id);
     m_liveState.insert(id, state);
+    if (state == LiveState::Failed && !detail.isEmpty())
+        m_liveDetail.insert(id, detail);
+    else
+        m_liveDetail.remove(id);
     if (usage) {
         m_liveUsage.insert(id, *usage);
         if (!m_usage.contains(id) || usage->sampledAt >= m_usage.value(id).sampledAt)
@@ -566,6 +570,7 @@ QVariantList AccountStore::accountsModel() const
         const LiveState st = m_liveState.value(a.id, LiveState::Unknown);
         m[QStringLiteral("needsSignIn")] = st == LiveState::NeedsSignIn;
         m[QStringLiteral("liveFailed")] = st == LiveState::Failed;
+        m[QStringLiteral("liveDetail")] = m_liveDetail.value(a.id);
         QVariantList limits;
         if (m_usage.contains(a.id)) {
             const Usage &u = m_usage[a.id];

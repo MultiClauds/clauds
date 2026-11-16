@@ -146,6 +146,7 @@ private:
     QHash<QString, Usage> m_usage;
     QHash<QString, Usage> m_liveUsage;
     QHash<QString, LiveState> m_liveState;
+    QHash<QString, QString> m_liveDetail;   // why the last live read failed
     QDateTime m_lastLiveFetch;
     QTimer m_usageTimer;
     QTimer m_runningTimer;

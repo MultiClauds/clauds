@@ -136,7 +136,10 @@ void LiveUsage::runScript(QWebEnginePage *page, Callback done, int attempt)
             }
             const auto parsed = Usage::parseLive(object.value(QStringLiteral("usage")).toObject());
             if (!parsed) {
-                done(std::nullopt, State::Failed, QStringLiteral("usage format changed"));
+                // Names of the fields only, never their values: enough to see what claude.ai sent.
+                const QStringList keys = object.value(QStringLiteral("usage")).toObject().keys();
+                done(std::nullopt, State::Failed,
+                     QStringLiteral("usage format changed (fields: %1)").arg(keys.isEmpty() ? QStringLiteral("none") : keys.join(QStringLiteral(", "))));
                 return;
             }
             done(parsed, State::Ok, {});
@@ -155,6 +158,8 @@ void LiveUsage::refresh(AccountStore *store, const QStringList &ids)
     fetch(id, [=, this](std::optional<Usage> usage, State state, QString detail) {
         if (!guard)
             return;
+        if (state == State::Failed)
+            qWarning("clauds: live usage for account %s failed: %s", qPrintable(id), qPrintable(detail));
         guard->setLiveResult(id, usage, state, detail);
         refresh(guard, rest);
     });

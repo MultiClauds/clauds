@@ -12,6 +12,7 @@
 #include <QMenu>
 #include <QQmlContext>
 #include <QQmlEngine>
+#include <QQuickItem>
 #include <QQuickView>
 #include <QScreen>
 
@@ -48,6 +49,14 @@ Tray::Tray(AccountStore *store, Actions *actions, Theme *theme, QObject *parent)
     m_panel->rootContext()->setContextProperty(QStringLiteral("actions"), actions);
     m_panel->rootContext()->setContextProperty(QStringLiteral("theme"), theme);
     m_panel->setSource(QUrl(QStringLiteral("qrc:/qml/Panel.qml")));
+    // The panel grows and shrinks with the accounts and their usage rows. SizeViewToRootObject
+    // alone is not enough on Wayland: a size change of a hidden window can be lost when the window
+    // is shown again. So the size is also set as the minimum and maximum, which the compositor obeys.
+    if (QQuickItem *root = m_panel->rootObject()) {
+        connect(root, &QQuickItem::widthChanged, this, &Tray::syncPanelSize);
+        connect(root, &QQuickItem::heightChanged, this, &Tray::syncPanelSize);
+    }
+    syncPanelSize();
     // The panel closes when it loses focus, like a popup.
     connect(m_panel, &QWindow::activeChanged, this, [this] {
         if (!m_panel->isActive() && m_panel->isVisible())
@@ -123,6 +132,22 @@ void Tray::rebuildMenu()
     m_menu->addAction(QIcon::fromTheme(QStringLiteral("application-exit")), QStringLiteral("Quit Clauds"), m_actions, &Actions::quit);
 }
 
+void Tray::syncPanelSize()
+{
+    const QQuickItem *root = m_panel->rootObject();
+    if (!root)
+        return;
+    const QSize size(qRound(root->width()), qRound(root->height()));
+    if (size.isEmpty())
+        return;
+    // Order matters: a new minimum above the old maximum (or the reverse) would be rejected.
+    m_panel->setMinimumSize(QSize(1, 1));
+    m_panel->setMaximumSize(size);
+    m_panel->setMinimumSize(size);
+    if (m_panel->size() != size)
+        m_panel->resize(size);
+}
+
 void Tray::togglePanel(const QPoint &near)
 {
     // A click on the tray icon takes focus from the panel first, which hides it. Do not reopen it
@@ -138,6 +163,7 @@ void Tray::showPanel(const QPoint &near)
 {
     m_store->refreshRunning();
     m_store->refreshUsage();
+    syncPanelSize();
     // X11: place the panel next to the tray icon, inside the screen. Wayland does not let an app
     // place its own window; KWin places it.
     if (QGuiApplication::platformName() != QLatin1String("wayland") && !near.isNull()) {

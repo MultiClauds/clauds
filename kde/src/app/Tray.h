@@ -37,6 +37,7 @@ public Q_SLOTS:
 private:
     void rebuildMenu();
     void updateToolTip();
+    void syncPanelSize();
 
     AccountStore *m_store;
     Actions *m_actions;
