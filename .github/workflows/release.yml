@@ -55,7 +55,7 @@ jobs:
         if: steps.version.outputs.skip != 'true'
         run: echo "${{ steps.version.outputs.version }}" > VERSION
 
-      - name: Install Flatpak and the KDE runtime
+      - name: Install Flatpak and flatpak-builder
         if: steps.version.outputs.skip != 'true'
         run: |
           sudo apt-get update
@@ -64,14 +64,14 @@ jobs:
           # Ubuntu 24.04 blocks the user namespaces that flatpak-builder needs.
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
           flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-          make FLATPAK_BRANCH=6.10 flatpak-runtime
           # The flatpak-builder and AppStream of Ubuntu 24.04 are too old: AppStream cannot read the
-          # rewritten .desktop file. The current flatpak-builder comes from Flathub.
+          # rewritten .desktop file. The current flatpak-builder comes from Flathub. It runs in its own
+          # sandbox, so it installs the KDE runtime, SDK and Qt WebEngine base itself (--install-deps-from).
           flatpak install --user --noninteractive flathub org.flatpak.Builder
 
       - name: Build the Flatpak
         if: steps.version.outputs.skip != 'true'
-        run: make FLATPAK_BUILDER="flatpak run org.flatpak.Builder --disable-rofiles-fuse" flatpak
+        run: make FLATPAK_BUILDER="flatpak run org.flatpak.Builder --disable-rofiles-fuse --install-deps-from=flathub" flatpak
 
       - name: Show why the build failed
         if: failure()
