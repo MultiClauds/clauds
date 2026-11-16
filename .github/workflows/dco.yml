@@ -1,0 +1,49 @@
+name: DCO
+
+# Quality gate: every commit of a pull request must carry a Signed-off-by line of its author
+# (Developer Certificate of Origin, https://developercertificate.org). Use `git commit -s`.
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dco-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dco:
+    name: Signed-off-by on every commit
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check the commits
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          fail=0
+          for c in $(git rev-list --no-merges "$BASE..$HEAD"); do
+            author=$(git show -s --format='%ae' "$c")
+            committer=$(git show -s --format='%ce' "$c")
+            subject=$(git show -s --format='%h %s' "$c")
+            case "$(git show -s --format='%an' "$c")" in
+              *'[bot]') echo "skip (bot): $subject"; continue ;;
+            esac
+            signers=$(git show -s --format='%B' "$c" | sed -n 's/^Signed-off-by: .*<\(.*\)>[[:space:]]*$/\1/Ip')
+            if printf '%s\n' "$signers" | grep -qixF -e "$author" -e "$committer"; then
+              echo "ok: $subject"
+            else
+              echo "::error::No Signed-off-by line of the author in commit $subject"
+              fail=1
+            fi
+          done
+          if [ "$fail" -ne 0 ]; then
+            echo "Fix: git rebase --signoff \"$BASE\" && git push --force-with-lease"
+            exit 1
+          fi

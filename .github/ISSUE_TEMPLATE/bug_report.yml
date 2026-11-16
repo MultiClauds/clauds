@@ -45,7 +45,8 @@ body:
   - type: input
     id: macos
     attributes:
-      label: macOS version
+      label: Operating system and version
+      description: For example "Kubuntu 26.04, Plasma 6.6" or "macOS 15.5".
     validations:
       required: true
   - type: input
