@@ -27,46 +27,15 @@
 > "Claude" is a trademark of Anthropic, PBC.
 
 > [!NOTE]
-> **This repository is the KDE Plasma port of [Clauds](https://github.com/codeFi/clauds)**, the
-> macOS menu bar app by [Razvan Tanase](https://github.com/codeFi). The port is in [`kde/`](kde/)
-> and is written in C++ with Qt 6 and KDE Frameworks 6. The macOS source (`Sources/`, `build.sh`)
-> is kept as it is upstream, so that upstream changes can be merged. For the macOS app, use the
-> [upstream repository](https://github.com/codeFi/clauds).
-
-## KDE Plasma port
-
-The port has the same features, the same words, and the same data safety rules as the macOS app.
-It is an early version (0.1.0). Make a [backup](kde/README.md#backup) before the first switch.
-
-| Read this | For |
-| --- | --- |
-| [kde/README.md](kde/README.md) | Requirements, install, folders, settings, and the differences from the macOS app |
-| [kde/docs/DESIGN.md](kde/docs/DESIGN.md) | Design, platform mapping, and open risks |
-| The sections from [Why](#why) to [How it works](#how-it-works) below | What the app does. They describe the macOS app; read "menu bar" as "system tray". |
-
-Build and install on Kubuntu 25.04 or later (built for 26.04):
-
-```bash
-git clone https://github.com/atterdag/clauds.git
-cd clauds
-make deps       # build dependencies (sudo apt)
-make test       # configure, build, run the test suites
-make install    # build the .deb and install it (sudo apt)
-```
-
-Then start **Clauds** from the application launcher. `make help` lists every target.
-
-| Package | Command | State |
-| --- | --- | --- |
-| `.deb` | `make deb` | Built and tested in CI on Ubuntu 26.04 |
-| Flatpak | `make flatpak-deps`, then `make flatpak` | Experimental. See [kde/packaging/flatpak](kde/packaging/flatpak). |
+> This repository is the KDE Plasma port of [Clauds](https://github.com/codeFi/clauds), the macOS
+> menu bar app by [Razvan Tanase](https://github.com/codeFi). For the macOS app, use the
+> [upstream repository](https://github.com/codeFi/clauds). See
+> [Relation to the macOS app](#relation-to-the-macos-app).
 
 ## Contents
 
-- [KDE Plasma port](#kde-plasma-port)
 - [Why](#why)
 - [Features](#features)
-- [Screenshots](#screenshots)
 - [Requirements](#requirements)
 - [Install](#install)
 - [First use](#first-use)
@@ -78,6 +47,8 @@ Then start **Clauds** from the application launcher. `make help` lists every tar
 - [How it works](#how-it-works)
 - [Development](#development)
 - [Contributing](#contributing)
+- [Relation to the macOS app](#relation-to-the-macos-app)
+- [Third-party software](#third-party-software)
 - [License](#license)
 
 ## Why
@@ -90,7 +61,8 @@ is signed out.
 
 ## Features
 
-- **One-click switch.** Click an account in the menu bar. Claude opens again with that account.
+- **One-click switch.** Click an account in the panel, or in the quick menu of the tray icon.
+  Claude opens again with that account.
 - **Side by Side.** Run one Claude copy for each account, all at the same time. No restart.
 - **Shared Code sessions.** Continue the same Code session from a different account. There are no
   copies: all accounts use the same session files.
@@ -101,131 +73,62 @@ is signed out.
 - **Live usage.** See the 5-hour limit, the weekly limit, and the weekly per-model limit for each
   account, each with its reset time.
 - **Chat windows.** Open claude.ai for any account in its own window, with its own login.
-- **Start at Login.**
-- **Self-update.** The app tells you when a new version is ready, shows what is new, and installs
-  it when you say so. Each update has a signature that the app checks.
-- **Local only.** No server, no analytics, no telemetry. The app does not read your tokens,
-  cookies, or passwords.
-- **Small.** One Swift package. One dependency (Sparkle, for the updates).
-
-## Screenshots
-
-| Restart mode | Side by Side |
-| --- | --- |
-| <img src="docs/images/panel-dark.png" width="380" alt="The panel in dark mode: one current account and two saved accounts"> | <img src="docs/images/side-by-side-dark.png" width="380" alt="The panel in dark mode with Side by Side on: two open accounts"> |
-| <img src="docs/images/panel-light.png" width="380" alt="The panel in light mode"> | <img src="docs/images/side-by-side-light.png" width="380" alt="The panel in light mode with Side by Side on"> |
-
-The pictures use fake accounts. The app makes them itself with `--render-demo`.
+- **Start at Login.** An autostart entry that you can see in System Settings.
+- **Native on Plasma.** A StatusNotifierItem tray icon, KDE notifications, and the colors of your
+  color scheme. Nothing is hard-coded.
+- **Local only.** No server, no analytics, no telemetry, no update check. The app does not read
+  your tokens, cookies, or passwords.
 
 ## Requirements
 
-For the KDE port, see [kde/README.md](kde/README.md#requirements). For the macOS app:
-
-- macOS 14 (Sonoma) or later
-- The [Claude desktop app](https://claude.ai/download)
-- Only if you build the app yourself: Xcode 15.3 or later, or the Swift 5.10 toolchain
+- KDE Plasma 6 (Kubuntu 25.04 or later; built for 26.04). On other desktops, the app uses the
+  plain Qt tray icon.
+- [Claude Desktop for Linux](https://claude.com/download) (the `claude-desktop` package), or the
+  unofficial `claude-desktop-unofficial` build. Both keep their data in `~/.config/Claude`.
+- To build: CMake 3.22 or later, a C++20 compiler, Qt 6.4 or later, and KDE Frameworks 6.
+  `make deps` installs them on Kubuntu.
 
 ## Install
 
-For the KDE port, see [KDE Plasma port](#kde-plasma-port) above. For the macOS app:
-
-There are two ways. Use only one.
-
-### Way 1: download the app
-
-1. Download `Clauds-1.0.0.dmg` from the
-   [latest release](https://github.com/codeFi/clauds/releases/latest).
-2. Open the file. Drag **Clauds** to the **Applications** folder.
-3. Open **Clauds** from Applications.
-4. macOS blocks the first start. Permit the app one time, as the next part shows.
-
-The download works on Apple silicon Macs and on Intel Macs.
-
-#### The app is not notarized
-
 > [!WARNING]
-> The download is **not notarized by Apple**. macOS says that it cannot check the app for
-> malicious software, and does not open it at the first start. This is expected.
+> This is an early version (0.1.0). Make a [backup](#development) before the first switch.
 
-"Notarized" means that the developer has a paid Apple Developer account, and that Apple scanned the
-app. This is a free project without such an account. The app has only an ad-hoc signature (a
-signature with no identity).
-
-What this means for you:
-
-- macOS cannot tell you who made the app. You must decide if you trust it.
-- The full source code is in this repository. You can read it, and you can build the app yourself
-  (Way 2). The result is the same app.
-- Each release lists the SHA-256 checksum of the file. Compare it to make sure that the download is
-  the file that was published:
-  `shasum -a 256 ~/Downloads/Clauds-1.0.0.dmg`
-
-To permit the app, one time:
-
-1. Open the app. A warning shows. Click **Done**. Do not click **Move to Trash**.
-2. Open **System Settings > Privacy & Security**.
-3. Go down to **Security**. Next to "Clauds was blocked", click **Open Anyway**.
-4. Click **Open Anyway** again, and type your Mac password.
-
-Or do it in Terminal, one time:
+There is no download yet. Build the package on your computer. This takes a few minutes.
 
 ```bash
-xattr -dr com.apple.quarantine "/Applications/Clauds.app"
-```
-
-This command removes the "downloaded from the internet" mark from the app. Use it only for an app
-that you trust.
-
-### Way 2: build the app yourself
-
-This takes about one minute. macOS shows no warning, because the app is made on your Mac.
-
-```bash
-git clone https://github.com/codeFi/clauds.git
+git clone https://github.com/atterdag/clauds.git
 cd clauds
-./build.sh --install
-open "/Applications/Clauds.app"
+make deps       # build dependencies (sudo apt)
+make test       # configure, build, run the test suites
+make install    # build the .deb and install it (sudo apt)
 ```
 
-`./build.sh --install` builds the app, gives it an ad-hoc signature, and copies it to
-`/Applications`. Without `--install`, the app is only in `build/Clauds.app`.
+Then start **Clauds** from the application launcher. The icon appears in the system tray.
+
+| Package | Command | State |
+| --- | --- | --- |
+| `.deb` | `make deb`, or `make install` to also install it | The supported way. CI builds it on Ubuntu 26.04. |
+| Flatpak | `make flatpak-deps`, then `make flatpak-install` | Experimental. See [kde/packaging/flatpak](kde/packaging/flatpak). |
+
+`make help` lists every target.
 
 ### Updates
 
-The app updates itself.
+The app does not update itself, and it does not look for new versions. To update:
 
-- At its second start, the app asks if it can look for updates automatically. If you say yes, it
-  looks one time each day.
-- When a new version is ready, a window shows the release notes and three buttons:
-  **Skip This Version**, **Remind Me Later**, and **Install Update**. Nothing installs without your click.
-- To look now: **… > Check for Updates…**. To turn the automatic check off:
-  **… > Check for Updates Automatically**.
-- An update keeps your accounts and logins.
-- After an update, macOS does not show the "not notarized" warning again.
+```bash
+cd clauds
+git pull
+make install
+```
 
-How it stays safe: each update file has a signature made with a secret key that only the
-maintainer has. The app checks the signature and refuses a file that does not match. See
-[docs/RELEASING.md](docs/RELEASING.md).
-
-#### If you used "Claude Switcher"
-
-Clauds had the name "Claude Switcher" before. That app cannot update itself to Clauds.
-
-1. Quit Claude Switcher and move `/Applications/Claude Switcher.app` to the Trash.
-2. Install Clauds.
-3. Quit Claude, then start Clauds one time. It moves your saved accounts from
-   `~/Library/Application Support/ClaudeSwitcher` to `~/Library/Application Support/Clauds`.
-   While Claude is open, Clauds uses the old folder and moves nothing.
-4. Sign in for live usage again: open the … menu of each account, then **Sign In for Live Usage…**.
-
-If you built the app yourself and want to stay on your own build, turn the automatic check off.
-An update replaces your build with the release build.
+An update keeps your accounts and logins. Quit Clauds before you install, and start it again after.
 
 ## First use
 
 1. Open the Claude desktop app and sign in to your first account, as usual.
 2. Open Clauds. At the first start, it asks if it can start at login. Choose what you want.
-   Then click the Clauds icon in the menu bar.
+   Then click the Clauds icon in the system tray.
 3. Click **Save Current Claude Login as Account…** and give it a name. No files move.
 4. Click **Add Account** and give the second account a name.
 5. A sign-in window opens. Sign in to the second account there. This login is for the live usage
@@ -240,6 +143,15 @@ You do steps 5 and 6 one time for each account. After that, both logins stay.
 
 ## How to use it
 
+### The tray icon
+
+| Click | What opens |
+| --- | --- |
+| Left click | The panel, with a card for each account. |
+| Right click | A quick menu with every account, for a switch with one click. |
+
+On Wayland, KWin decides where the panel opens. The quick menu always opens at the icon.
+
 ### Switch accounts (restart mode)
 
 Click an account. Claude quits, and opens again with that account. This takes some seconds.
@@ -251,7 +163,7 @@ Running Code sessions stop when Claude quits. Finish or pause your work first.
 Turn on **Side by Side (no restart)**.
 
 - Each account gets its own Claude copy. All copies can be open at the same time.
-- A click on an account brings its copy to the front, or starts it.
+- A click on an account starts its copy.
 - A green dot shows which accounts have a copy open.
 - Each account sees only the Code sessions that it owns.
 
@@ -263,7 +175,7 @@ Turn on **Share Code Sessions**.
 
 - All accounts in the same organization see the same Code sessions.
 - You can start a session with one account and continue it with a different account.
-- For a new account: sign in, then use **… > Share Code Sessions Now (Restarts Claude)** one time.
+- For a new account: sign in, then use **More > Share Code Sessions Now (Restarts Claude)** one time.
 
 #### Share Code sessions in Side by Side (risky)
 
@@ -283,7 +195,7 @@ The conversation text of each session is in `~/.claude/projects`. The app does n
 
 ### Auto-switch near a limit
 
-Open **… > Auto-Switch Near a Limit**. This works in restart mode only (Side by Side off).
+Open **More > Auto-Switch Near a Limit**. This works in restart mode only (Side by Side off).
 
 | Choice | What the app does |
 | --- | --- |
@@ -305,7 +217,7 @@ can happen in the middle of your work. Use **Ask Me First** if that is a problem
 
 ### Usage numbers
 
-Each account card shows three limits:
+Each account card shows up to three limits:
 
 | Label | Limit | Reset text |
 | --- | --- | --- |
@@ -313,60 +225,67 @@ Each account card shows three limits:
 | `Week` | The weekly limit for all models | Day and time, for example `Thu 14:00` |
 | `<Model> wk` | The weekly limit for one model | Day and time |
 
-- Green is below 60%. Orange is 60% to 84%. Red is 85% or more.
+- The color of a number shows how near the limit is. The colors come from your color scheme.
 - Put the pointer on a limit to see its full name and its exact reset time.
-- The numbers refresh every 2 minutes.
-- If an account is not signed in for live usage, the card says so. Use **… > Sign In for Live Usage…**
-  on that account.
+- The numbers refresh by themselves.
 
-### The account menu (… on a card)
+When there are no live numbers, the card says why:
+
+| Text on the card | What it means | What to do |
+| --- | --- | --- |
+| Sign in for live usage | The login for live usage is missing. | Use **Sign In for Live Usage…** in the account menu. |
+| Live usage is not available: this account is not allowed to read usage and billing information | The login works, but claude.ai refuses the usage numbers for this account. | Ask an admin of the organization for access. |
+| No 5-hour or weekly limits to show | claude.ai answers, but reports no such limits for this account. | Nothing. Some plans have no such limits. |
+| Could not load new usage numbers | No connection, or claude.ai gave an answer that the app does not know. | Use **Load Usage Again**. If it stays, open an issue. |
+
+### The account menu (the button on a card)
 
 | Item | What it does |
 | --- | --- |
-| Sign In for Live Usage… | Opens the sign-in window. Shown only when the login is missing. |
+| Load Usage Again | Reads the live usage numbers again. Shown only after a failed read. |
+| Sign In for Live Usage… | Opens the sign-in window. Shown only when the login is missing or a read failed. |
 | Open Chats in Window | Opens claude.ai for this account in its own window. |
 | New Chat in Window | Opens a new chat for this account. |
 | Rename… / Set Email… | Changes the text on the card. The email is only a label. |
 | Move Up / Move Down | Changes the order. |
 | Remove… | Moves the account's Claude data to the Trash. Its sessions go to the shared pool first. |
 
-### The app menu (… at the bottom)
+### The app menu (More, at the bottom)
 
 | Item | What it does |
 | --- | --- |
 | Share Code Sessions Now (Restarts Claude) | Links the session folders now. |
-| Check for Updates… | Looks for a new version now, and shows the result. |
-| Check for Updates Automatically | On: the app looks one time each day. |
-| Start at Login | Starts Clauds when you log in to the Mac. The app asks one time, at the first start. It does not turn this on without your yes. |
-| Show Saved Accounts in Finder | Opens the folder with the saved account data. |
+| Start at Login | Starts Clauds when you log in. The app asks one time, at the first start. It does not turn this on without your yes. |
+| Auto-Switch Near a Limit | See [Auto-switch near a limit](#auto-switch-near-a-limit). |
+| Show Saved Accounts in File Manager | Opens the folder with the saved account data. |
 | Open Claude | Opens the Claude app. |
 | About Clauds | Shows the version, the license, and the project link. |
-| Quit Clauds | Quits the menu bar app. Claude stays open. |
+| Quit Clauds | Quits the tray app. Claude stays open. |
 
 ## Privacy and security
 
-- **Everything stays on your Mac.** There is no server, no account, no analytics, and no telemetry.
-- **Two network uses.** The app contacts `claude.ai`, through the macOS web view, for the chat
-  windows and the live usage numbers. And it contacts GitHub (`raw.githubusercontent.com` and
-  `github.com`) to look for updates and to download them. The update check sends no data about
-  you or your accounts. You can turn it off.
-- **Signed updates.** The app installs an update only if its signature is valid.
+- **Everything stays on your computer.** There is no server, no account, no analytics, and no telemetry.
+- **One network use.** The app contacts `claude.ai`, through Qt WebEngine, for the chat windows and
+  the live usage numbers. It contacts no other host. It does not look for updates.
 - **No secrets are read.** The app moves whole Claude data folders. It does not open, copy, or store
   passwords, tokens, or cookies, and it does not read the encrypted login store of the Claude app.
-- **Private files.** All files and folders that the app makes can be opened only by your macOS user.
+- **Private files.** All files and folders that the app makes can be opened only by your user.
 - **Nothing is deleted.** When two versions of a session file exist, the newer one wins and the
-  older one is kept in a `_conflicts` folder.
-- **No sandbox.** The app must rename folders in `~/Library/Application Support`, so it cannot run
-  in the App Sandbox. Read the code before you run it. It is about 2,500 lines.
+  older one is kept in a `_conflicts` folder. A removed account goes to the Trash.
+- **No sandbox for the `.deb`.** The app must rename folders in `~/.config` and `~/.local/share`,
+  and it must find, quit, and start Claude. Read the code before you run it. The port is about
+  3,800 lines.
+- **The Flatpak is not a strong sandbox.** For the same reason, it asks for access to the Claude
+  data folder and for permission to run commands on the host.
 
 To report a security problem, read [SECURITY.md](SECURITY.md).
 
 ## Limits
 
-- **Desktop app only.** The Claude Code CLI (`~/.claude` and the Keychain) is not switched.
+- **Desktop app only.** The Claude Code CLI (`~/.claude` and its login) is not switched.
 - **Unofficial usage numbers.** The live usage numbers come from the same address that the claude.ai
   website uses. It is not a public interface. Anthropic can change it, and then the live numbers
-  stop until the app is updated. The app then shows the older numbers that Claude saves on the Mac.
+  stop until the app is updated. The app then shows the older numbers that Claude saves on the computer.
 - **Claude reads sessions at start.** After a layout change, a Claude copy that is open shows the
   new session list only after its next start.
 - **Conversation text is shared by design.** Claude keeps the text of Code sessions in
@@ -375,34 +294,41 @@ To report a security problem, read [SECURITY.md](SECURITY.md).
 - **Artifacts are not shared.** A published artifact belongs to one account on Anthropic's servers.
 - **Delete is for all.** With shared sessions, a session that you delete is gone for all accounts.
 - **Claude updates can break things.** The app depends on how the Claude desktop app stores its
-  data. A Claude update can change that.
+  data and names its processes. A Claude update can change that.
+- **One disk.** `~/.config` and `~/.local/share` must be on the same disk, because a switch renames folders.
 - **Your Claude plan terms apply.** Use only accounts that are yours.
 
 ## Troubleshooting
 
 **Claude did not quit.**
-Close Claude yourself (Cmd+Q in each copy), then click the account again.
+Close Claude yourself (Ctrl+Q in each copy), then click the account again.
+
+**Clauds says that the Claude desktop app was not found, or does not see a running Claude.**
+Find where Claude is, then set `CLAUDS_CLAUDE_LAUNCHER` or `CLAUDS_CLAUDE_INSTALL_DIRS`.
+See [Settings for unusual installs](kde/README.md#settings-for-unusual-installs).
 
 **A new account shows a blank window in Side by Side.**
 Quit that copy and click the account again. If it stays blank, turn Side by Side off and on.
 
-**The card shows old numbers, or "Sign in for live usage".**
-Use **… > Sign In for Live Usage…** on that account. The window closes by itself after the login.
+**The card shows old numbers, or a text in place of the numbers.**
+See the table in [Usage numbers](#usage-numbers).
 
 **The session list looks wrong after a mode change.**
 Quit and open that Claude copy. Claude reads the session list only at start.
 
 **"Start at Login" does not stay on.**
-Open System Settings > General > Login Items, and permit Clauds. The switch works only
-for the copy in `/Applications`.
+Open System Settings > Autostart, and look for Clauds. The entry is the file
+`~/.config/autostart/io.github.atterdag.clauds.desktop`.
+
+**The panel opens in the wrong place.**
+On Wayland, KWin places the panel. Use the quick menu (right click) to switch at the icon.
 
 **I want to see what the app saved.**
-Use **… > Show Saved Accounts in Finder**, or open `~/Library/Application Support/Clauds`.
+Use **More > Show Saved Accounts in File Manager**, or open `~/.local/share/clauds`.
 
 **Something went wrong with session files.**
 Stop. Do not delete anything. Older versions are in
-`~/Library/Application Support/Clauds/SharedSessions/_conflicts`. Then open an issue, without
-private data.
+`~/.local/share/clauds/SharedSessions/_conflicts`. Then open an issue, without private data.
 
 ## Uninstall
 
@@ -412,66 +338,83 @@ goes away.
 1. Turn off **Side by Side**.
 2. Turn off **Share Code Sessions**. Each account gets its own session files back.
 3. Click the account that you want to keep in the Claude app. It becomes the current account.
-4. Turn off **… > Start at Login**.
-5. Quit Clauds and move `/Applications/Clauds.app` to the Trash.
+4. Turn off **More > Start at Login**.
+5. Quit Clauds and remove the package: `make uninstall`, or `sudo apt remove clauds`.
+   For the Flatpak: `make flatpak-uninstall`.
 
-The folder `~/Library/Application Support/Clauds` still holds the saved data of your
-other accounts, and sessions that no account owns. Make a backup of it before you delete it:
+The folder `~/.local/share/clauds` still holds the saved data of your other accounts, and sessions
+that no account owns. Make a backup of it before you delete it:
 
 ```bash
-tar -czf ~/Clauds-backup.tgz -C ~/Library/"Application Support" Clauds
+tar -czf ~/clauds-backup.tgz -C ~/.local/share clauds
 ```
 
 ## How it works
 
-In short: Claude keeps its login in `~/Library/Application Support/Claude`. Clauds keeps
-one such folder for each account, and renames them (restart mode) or starts Claude with a different
-data folder (Side by Side).
+In short: Claude keeps its login in `~/.config/Claude`. Clauds keeps one such folder for each
+account in `~/.local/share/clauds/Profiles`, and renames them (restart mode) or starts Claude with
+a different data folder (Side by Side).
 
-The full description, with the session layouts, the owner record, and the data safety rules, is in
-[docs/HOW-IT-WORKS.md](docs/HOW-IT-WORKS.md).
+| Read this | For |
+| --- | --- |
+| [kde/README.md](kde/README.md#folders) | The folders, and the settings for unusual installs |
+| [kde/docs/DESIGN.md](kde/docs/DESIGN.md) | The design of the port, the platform mapping, and the open risks |
+| [docs/HOW-IT-WORKS.md](docs/HOW-IT-WORKS.md) | The session layouts, the owner record, and the data safety rules. Written for the macOS app; the rules are the same, the paths are not. |
 
 ## Development
 
-For the KDE port, use the `make` targets and see [kde/README.md](kde/README.md#development). For the macOS app:
-
 ```bash
-./build.sh                 # build/Clauds.app
-./build.sh --install       # also copy it to /Applications
-./build.sh --universal     # build for Apple silicon and Intel
-./build.sh --dmg           # universal build, and build/Clauds-<version>.dmg
-swift build -c release     # compile only
+make            # configure and build
+make test       # run the test suites
+make run        # start the app from the build folder
+make deb        # build the .deb
+make flatpak    # build the Flatpak bundle (experimental)
+make clean      # delete the build folder
 ```
 
-- The version number is in [`VERSION`](VERSION).
-- The app draws its own icon. The build also makes a layered icon from
-  [`Resources/AppIcon.icon`](Resources/AppIcon.icon), so that macOS 26 and later keep the amber
-  background. This step needs Xcode 26 or later. Without it, the app uses the plain icon.
-- To make the README pictures again:
-  `.build/release/Clauds --render-demo docs/images`
-- The command line hooks for tests are in [docs/HOW-IT-WORKS.md](docs/HOW-IT-WORKS.md#command-line-hooks).
+- The code is in [`kde/`](kde/): `src/core` (Qt Core only, with the tests) and `src/app` (tray,
+  panel, web views, KDE integration).
+- The version number of the port is in [`kde/CMakeLists.txt`](kde/CMakeLists.txt).
+- Without KDE Frameworks 6 (`make KF6=OFF`), the build makes a plain Qt tray app.
+- To make the README picture again:
+  `QT_QPA_PLATFORM=offscreen build-kde/src/app/clauds --render-panel kde/docs/panel.png`
+- More, with the command line hooks for tests: [kde/README.md](kde/README.md#development).
 
 Make a backup before you test changes to the switch or the session code:
 
 ```bash
-tar -czf ~/claude-backup.tgz -C ~/Library/"Application Support" Claude Clauds
+tar -czf ~/claude-backup.tgz -C ~/.config Claude -C ~/.local/share clauds
 ```
 
 ## Contributing
 
 Bug reports, ideas, and pull requests are welcome.
 
-- [CONTRIBUTING.md](CONTRIBUTING.md): how to build, test safely, and send a pull request
+- [CONTRIBUTING.md](CONTRIBUTING.md): how to build, test safely, sign your commits, and send a pull request
 - [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md): how we behave
 - [SECURITY.md](SECURITY.md): how to report a security problem in private
 - [SUPPORT.md](SUPPORT.md): where to ask for help
 - [CHANGELOG.md](CHANGELOG.md): what changed in each version
-- [docs/RELEASING.md](docs/RELEASING.md): how a release and its signed update are made
+
+## Relation to the macOS app
+
+Clauds is a macOS menu bar app by [Razvan Tanase](https://github.com/codeFi). This repository is a
+fork that adds the KDE Plasma port in [`kde/`](kde/), written in C++ with Qt 6 and KDE Frameworks 6.
+
+- The port keeps the same features, the same words, and the same data safety rules.
+- It has no self-update. See [the differences](kde/README.md#use).
+- The macOS source (`Sources/`, `Package.swift`, `build.sh`, `docs/`) is kept as it is upstream,
+  so that upstream changes can be merged. It is not released from here. For the macOS
+  app, its download, and its documentation, go to the
+  [upstream repository](https://github.com/codeFi/clauds).
 
 ## Third-party software
 
-- [Sparkle](https://sparkle-project.org) does the self-update. It has the MIT License. Its license
-  text is in the app, in `Contents/Resources/Sparkle-LICENSE.txt`.
+- [Qt 6](https://www.qt.io) (Core, Widgets, Quick, WebEngine), used under the LGPL v3. The app
+  links to the Qt libraries of your system.
+- [KDE Frameworks 6](https://develop.kde.org/products/frameworks/) (StatusNotifierItem,
+  Notifications, CoreAddons, ColorScheme), used under the LGPL. The app links to the libraries of
+  your system.
 
 ## License
 
