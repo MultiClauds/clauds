@@ -1,5 +1,6 @@
 # Swift Package Manager
 .build/
+build-kde/
 .swiftpm/
 
 # App bundle and build output

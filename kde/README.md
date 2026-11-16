@@ -37,6 +37,15 @@ ctest --test-dir build-kde            # 5 test suites
 cd build-kde && cpack -G DEB && sudo apt install ./clauds-*.deb
 ```
 
+Or use the `Makefile` in the repository root, which runs the same commands:
+
+```bash
+make deps      # install the build dependencies
+make test      # configure, build, run the tests
+make install   # build the .deb and install it
+make help      # every target and setting
+```
+
 Then start **Clauds** from the application launcher. The icon appears in the system tray.
 
 ## Use
