@@ -1,5 +1,6 @@
 # Swift Package Manager
 .build/
+build-kde/
 .swiftpm/
 
 # App bundle and build output
@@ -25,3 +26,5 @@ usage-debug.json
 .vscode/
 .idea/
 .claude/
+build-flatpak/
+.flatpak-builder/

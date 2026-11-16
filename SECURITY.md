@@ -5,7 +5,7 @@ your Code sessions. Security reports are important and welcome.
 
 ## Supported versions
 
-Only the newest release gets security fixes.
+Only the newest version on the `develop` branch gets security fixes, until there is a first release.
 
 ## How to report a vulnerability
 
@@ -13,7 +13,7 @@ Only the newest release gets security fixes.
 
 Use GitHub private vulnerability reporting:
 
-1. Go to <https://github.com/codeFi/clauds/security/advisories/new>.
+1. Go to <https://github.com/atterdag/clauds/security/advisories/new>.
 2. Describe the problem, the steps to reproduce it, and the effect.
 
 You can expect a first answer in 7 days. When the fix is released, the report is published with
@@ -23,30 +23,32 @@ credit to you, unless you do not want that.
 
 Do not attach these files to a report or an issue. They can identify you or your accounts:
 
-- `~/Library/Application Support/Clauds/accounts.json`
-- `~/Library/Application Support/Clauds/SharedSessions/owners.json`
-- `~/Library/Application Support/Clauds/usage-debug.json`
-- Anything from `~/Library/Application Support/Claude` or `~/Library/Application Support/Clauds/Profiles`
+- `~/.local/share/clauds/accounts.json`
+- `~/.local/share/clauds/SharedSessions/owners.json`
+- Anything from `~/.config/Claude`, `~/.local/share/clauds/Profiles`, or
+  `~/.local/share/clauds/QtWebEngine`
+- A core dump of the app (`coredumpctl`). It can hold account data.
 
 ## What the app does and does not do
 
-- All data stays on your Mac. The app has no server, no analytics, and no telemetry.
-- The app contacts `claude.ai`, through the system web view, for the chat windows and the live
-  usage numbers. It contacts GitHub (`raw.githubusercontent.com`, `github.com`) only to look for
-  updates and to download them.
-- The app installs an update only if the file has a valid EdDSA signature for the public key that
-  is built into the app. The secret key is not in this repository. See `docs/RELEASING.md`.
+- All data stays on your computer. The app has no server, no analytics, and no telemetry.
+- The app contacts `claude.ai`, through Qt WebEngine, for the chat windows and the live usage
+  numbers. It contacts no other host.
+- The app does not update itself and does not look for new versions.
 - The app does not read, copy, or store passwords, tokens, or cookies. It moves whole Claude data
   folders. The web views keep their own logins, as a browser does.
 - The app does not read the encrypted login store of the Claude app.
-- All files and folders that the app makes are private to your macOS user (`umask 077`, folders `700`).
+- The files and folders that the app makes are private to your user (folders `700`, files `600`).
+- The `.deb` runs without a sandbox, with the rights of your user. It must rename folders in
+  `~/.config` and `~/.local/share`, and it must find, quit, and start the Claude app.
+- The Flatpak is not a strong sandbox. It has access to the Claude data folder and permission to
+  run commands on the host (`org.freedesktop.Flatpak`), for the same reason.
 
-## About the release download
+## About the packages
 
-The DMG file in each release has an ad-hoc signature and is **not notarized by Apple**. macOS shows
-a warning at the first start. The README explains this and how to permit the app. Each release
-lists the SHA-256 checksum of the file. If you do not want to trust the download, build the app
-from the source code.
+There is no release download yet. You build the `.deb` or the Flatpak from the source code, with
+`make install` or `make flatpak-install`. The build uses the Qt and KDE Frameworks packages of
+your distribution.
 
 ## Scope
 

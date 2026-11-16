@@ -1,0 +1,56 @@
+name: KDE port
+
+on:
+  push:
+    paths: ["kde/**", "VERSION", "Makefile", ".github/workflows/kde.yml"]
+  pull_request:
+    paths: ["kde/**", "VERSION", "Makefile", ".github/workflows/kde.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  # Plain Qt 6 build (no KDE Frameworks): core tests and the fallback tray app.
+  qt-only:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Qt 6
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends cmake g++ qt6-base-dev qt6-declarative-dev \
+            qt6-webengine-dev libgl-dev
+      - name: Build
+        run: |
+          cmake -S kde -B build -DCLAUDS_WITH_KF6=OFF
+          cmake --build build -j
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+  # Kubuntu 26.04 target: Qt 6 + KDE Frameworks 6, then a .deb.
+  kf6:
+    runs-on: ubuntu-latest
+    container: ubuntu:26.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Qt 6 and KDE Frameworks 6
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends cmake g++ make file dpkg-dev extra-cmake-modules \
+            qt6-base-dev qt6-declarative-dev qt6-webengine-dev libgl-dev \
+            libkf6statusnotifieritem-dev libkf6notifications-dev libkf6coreaddons-dev libkf6colorscheme-dev
+      - name: Build
+        run: |
+          cmake -S kde -B build -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          cmake --build build -j
+          grep -q "CLAUDS_HAVE_KF6" build/src/app/CMakeFiles/clauds.dir/flags.make
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+      - name: Package
+        run: cd build && cpack -G DEB
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: clauds-deb
+          path: build/*.deb

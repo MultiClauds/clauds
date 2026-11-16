@@ -1,0 +1,8 @@
+[Global]
+IconName=clauds
+Comment=Clauds
+
+[Event/autoSwitched]
+Name=Switched account near a limit
+Comment=Clauds switched the Claude app to an account with more room
+Action=Popup
