@@ -3,6 +3,6 @@
         <file>qml/Panel.qml</file>
         <file>qml/AccountCard.qml</file>
         <file>icons/clauds.svg</file>
-        <file>icons/clauds-tray-symbolic.svg</file>
+        <file>icons/io.github.multiclauds.clauds-kde-symbolic.svg</file>
     </qresource>
 </RCC>

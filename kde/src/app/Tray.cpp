@@ -30,7 +30,7 @@ namespace clauds {
 namespace {
 QIcon trayIcon()
 {
-    return QIcon::fromTheme(QStringLiteral("clauds-tray-symbolic"), QIcon(QStringLiteral(":/icons/clauds-tray-symbolic.svg")));
+    return QIcon::fromTheme(QStringLiteral("io.github.multiclauds.clauds-kde-symbolic"), QIcon(QStringLiteral(":/icons/io.github.multiclauds.clauds-kde-symbolic.svg")));
 }
 } // namespace
 #endif
@@ -74,7 +74,7 @@ Tray::Tray(AccountStore *store, Actions *actions, Theme *theme, QObject *parent)
     m_item->setCategory(KStatusNotifierItem::ApplicationStatus);
     m_item->setStatus(KStatusNotifierItem::Active);
     m_item->setTitle(QStringLiteral("Clauds"));
-    m_item->setIconByName(QStringLiteral("clauds-tray-symbolic"));
+    m_item->setIconByName(QStringLiteral("io.github.multiclauds.clauds-kde-symbolic"));
     m_item->setStandardActionsEnabled(false);
     m_item->setContextMenu(m_menu);
     connect(m_item, &KStatusNotifierItem::activateRequested, this, [this](bool, const QPoint &pos) { togglePanel(pos); });
