@@ -126,14 +126,14 @@ Item {
         ToolButton {
             id: more
             Layout.alignment: Qt.AlignTop
-            icon.name: "overflow-menu"
-            text: "Account menu"
-            display: AbstractButton.IconOnly
+            text: "\u22EE"   // vertical ellipsis
+            font.pointSize: Qt.application.font.pointSize * 1.3
+            Accessible.name: "Account menu"
             onClicked: accountMenu.popup(more, 0, more.height)
         }
     }
 
-    Menu {
+    ThemedMenu {
         id: accountMenu
         MenuItem {
             visible: card.account.liveFailed || card.account.noUsageAccess || card.account.noUsageLimits

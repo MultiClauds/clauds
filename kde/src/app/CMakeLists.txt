@@ -41,4 +41,4 @@ configure_file(../../packaging/io.github.multiclauds.clauds-kde.metainfo.xml.in
                ${CMAKE_CURRENT_BINARY_DIR}/io.github.multiclauds.clauds-kde.metainfo.xml @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/io.github.multiclauds.clauds-kde.metainfo.xml DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo)
 install(FILES icons/clauds.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
-install(FILES icons/clauds-tray-symbolic.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/status)
+install(FILES icons/io.github.multiclauds.clauds-kde-symbolic.svg DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/status)

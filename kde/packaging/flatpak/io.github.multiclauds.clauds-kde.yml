@@ -10,7 +10,8 @@ base: io.qt.qtwebengine.BaseApp
 base-version: '6.10'
 command: clauds
 
-# The desktop file and the metainfo are already named after the app ID. The icon is not.
+# The desktop file, the metainfo and the tray icon (...-symbolic) are named after the app ID.
+# The app icon is not.
 rename-icon: clauds
 
 separate-locales: false

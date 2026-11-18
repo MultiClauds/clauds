@@ -390,7 +390,7 @@ make test       # run the test suites
 make run        # start the app from the build folder
 make deb        # build the .deb
 make flatpak    # build the Flatpak bundle (experimental)
-make clean      # delete the build folder
+make clean      # delete the build folders (.deb and Flatpak)
 ```
 
 - The code is in [`kde/`](kde/): `src/core` (Qt Core only, with the tests) and `src/app` (tray,
