@@ -15,6 +15,22 @@ Rectangle {
 
     SystemPalette { id: pal; colorGroup: SystemPalette.Active }
 
+    // Keep the Controls on the live system palette.
+    palette.window: pal.window
+    palette.windowText: pal.windowText
+    palette.base: pal.base
+    palette.alternateBase: pal.alternateBase
+    palette.text: pal.text
+    palette.button: pal.button
+    palette.buttonText: pal.buttonText
+    palette.highlight: pal.highlight
+    palette.highlightedText: pal.highlightedText
+    palette.light: pal.light
+    palette.midlight: pal.midlight
+    palette.mid: pal.mid
+    palette.dark: pal.dark
+    palette.shadow: pal.shadow
+
     function isPrimary(a) { return store.sideBySide ? a.isRunning : a.isActive }
     readonly property var primary: store.accounts.filter(a => isPrimary(a))
     readonly property var others: store.accounts.filter(a => !isPrimary(a))
@@ -93,18 +109,18 @@ Rectangle {
             Layout.fillWidth: true
             ToolButton {
                 visible: store.accounts.length > 0
-                text: "Add Account"
-                icon.name: "list-add"
-                display: AbstractButton.TextBesideIcon
+                // The plus is part of the text, so it always has the color of the text. Theme icons and
+                // custom content do not follow the color scheme in every style (and the Flatpak).
+                text: "+  Add Account"
                 onClicked: actions.addAccount()
             }
             Item { Layout.fillWidth: true }
             BusyIndicator { visible: store.isSwitching; running: visible; implicitWidth: 22; implicitHeight: 22 }
             ToolButton {
                 id: appMenuButton
-                icon.name: "application-menu"
-                text: "More"
-                display: AbstractButton.IconOnly
+                text: "\u2630"   // trigram for heaven, a menu glyph
+                font.pointSize: Qt.application.font.pointSize * 1.2
+                Accessible.name: "More"
                 ToolTip.visible: hovered
                 ToolTip.text: "More"
                 onClicked: appMenu.popup(appMenuButton, 0, appMenuButton.height)
@@ -112,7 +128,7 @@ Rectangle {
         }
     }
 
-    Menu {
+    ThemedMenu {
         id: appMenu
         MenuItem {
             visible: store.sessionsAreShared
@@ -127,7 +143,7 @@ Rectangle {
             checked: actions.startsAtLogin
             onTriggered: actions.setStartsAtLogin(!actions.startsAtLogin)
         }
-        Menu {
+        ThemedMenu {
             title: "Auto-Switch Near a Limit"
             enabled: !store.sideBySide && store.accounts.length >= 2
             Repeater {

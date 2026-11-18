@@ -3,6 +3,7 @@
 
 #include <QCryptographicHash>
 #include <QEvent>
+#include <QFile>
 #include <QGuiApplication>
 #include <QPalette>
 
@@ -34,11 +35,22 @@ void Theme::reload()
     const QPalette pal = QGuiApplication::palette();
     m_highlight = pal.color(QPalette::Highlight);
 #ifdef CLAUDS_HAVE_KF6
-    const KColorScheme view(QPalette::Active, KColorScheme::View);
-    m_positive = view.foreground(KColorScheme::PositiveText).color();
-    m_neutral = view.foreground(KColorScheme::NeutralText).color();
-    m_negative = view.foreground(KColorScheme::NegativeText).color();
-    m_card = view.background(KColorScheme::NormalBackground).color();
+    // KColorScheme reads kdeglobals. In the Flatpak that file is a single-file mount that goes
+    // stale when Plasma rewrites it, so the colors would not follow a change of the scheme. The
+    // QPalette does follow it, so there the palette is used (the Breeze defaults for the states).
+    static const bool sandboxed = QFile::exists(QStringLiteral("/.flatpak-info"));
+    if (sandboxed) {
+        m_positive = QColor(0x27, 0xae, 0x60);
+        m_neutral = QColor(0xf6, 0x74, 0x00);
+        m_negative = QColor(0xda, 0x44, 0x53);
+        m_card = pal.color(QPalette::Base);
+    } else {
+        const KColorScheme view(QPalette::Active, KColorScheme::View);
+        m_positive = view.foreground(KColorScheme::PositiveText).color();
+        m_neutral = view.foreground(KColorScheme::NeutralText).color();
+        m_negative = view.foreground(KColorScheme::NegativeText).color();
+        m_card = view.background(KColorScheme::NormalBackground).color();
+    }
 #else
     // Without KDE Frameworks there is no positive/neutral/negative role in QPalette.
     // These are the Breeze defaults; with KF6 the user's scheme is used instead.

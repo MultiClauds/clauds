@@ -11,6 +11,7 @@
 
 #include <QApplication>
 #include <QDir>
+#include <QFile>
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QMessageBox>
@@ -90,7 +91,16 @@ int main(int argc, char **argv)
         }
     }
 
+    // Qt caches the compiled QML on disk and checks it against the modification time of the file.
+    // The files inside the binary have a fixed time in a Flatpak build, so after an update the old
+    // cached panel kept being shown. The QML is small; compile it at every start.
+    qputenv("QML_DISABLE_DISK_CACHE", "1");
     QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+    // In the Flatpak the KDE Controls style (qqc2-desktop-style) takes its text colors from
+    // kdeglobals, which is stale there after a change of the color scheme. Fusion draws from the
+    // palette, which follows the scheme (see Theme.cpp).
+    if (QFile::exists(QStringLiteral("/.flatpak-info")) && !qEnvironmentVariableIsSet("QT_QUICK_CONTROLS_STYLE"))
+        qputenv("QT_QUICK_CONTROLS_STYLE", "Fusion");
     QApplication app(argc, argv);
     app.setApplicationName(QStringLiteral("clauds"));
     app.setOrganizationName(QStringLiteral("clauds"));

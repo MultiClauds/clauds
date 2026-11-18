@@ -86,8 +86,8 @@ uninstall: ## Remove the installed package (uses sudo apt)
 	$(SUDO) apt remove clauds
 
 .PHONY: clean
-clean: ## Delete the build folder
-	rm -rf $(BUILD_DIR)
+clean: ## Delete the build folders (.deb and Flatpak)
+	rm -rf $(BUILD_DIR) $(FLATPAK_BUILD)
 
 # ---- Flatpak (see kde/packaging/flatpak) ----
 
