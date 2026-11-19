@@ -123,4 +123,5 @@ The sandbox opens the real `~/.config/Claude`, `~/.local/share/clauds`, the Tras
 folder, and it may talk to `org.freedesktop.Flatpak`. Claude Desktop is a host program, so the app
 finds, quits and starts it with `flatpak-spawn --host`. Flatpak sets `XDG_DATA_HOME` to
 `~/.var/app/<id>/data` whatever the manifest says, so the app uses `~/.local/share` and
-`~/.config` of your home folder instead.
+`~/.config` of your home folder instead. Flatpak creates `~/.local/share/clauds`, the Trash and the
+autostart folder on the host if they are missing, so the app sees the same folders as the host.
