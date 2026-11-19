@@ -19,6 +19,10 @@ The KDE Plasma port, in [`kde/`](kde/). Its version is 0.1.0 and it has no relea
 
 - Flatpak: the app now works on the real `~/.local/share/clauds`, `~/.config/Claude` and Trash.
   Flatpak had pointed `XDG_DATA_HOME` and `XDG_CONFIG_HOME` into `~/.var/app/<id>/`.
+- Flatpak: on a first start, `~/.local/share/clauds/Profiles` did not exist on the host, so "Show
+  Saved Accounts" failed and the saved accounts were lost when the app quit. Flatpak mounts a host
+  folder only if it exists; the manifest now has it create `~/.local/share/clauds`, the Trash and
+  the autostart folder.
 - Flatpak: "Show Saved Accounts" opens the file manager at once through the host. Before, Qt waited
   about 25 s for the portal.
 

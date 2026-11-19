@@ -34,10 +34,13 @@ finish-args:
   - --talk-name=org.freedesktop.Notifications
   # Clauds works on the real data folders of Claude Desktop and of itself. A switch renames
   # folders, so all of them must be on the same disk, in the real home folder.
+  # Flatpak mounts a host folder only if it already exists. Without ":create" the app writes
+  # into a throwaway folder inside the sandbox on first start, and the host never sees it.
+  # ~/.config/Claude belongs to Claude Desktop, so Clauds does not create it.
   - --filesystem=xdg-config/Claude
-  - --filesystem=xdg-data/clauds
-  - --filesystem=xdg-data/Trash
-  - --filesystem=xdg-config/autostart
+  - --filesystem=xdg-data/clauds:create
+  - --filesystem=xdg-data/Trash:create
+  - --filesystem=xdg-config/autostart:create
   # Use the real XDG folders, not ~/.var/app/<id>/..., so the paths match kde/README.md.
   - --unset-env=XDG_CONFIG_HOME
   - --unset-env=XDG_DATA_HOME
